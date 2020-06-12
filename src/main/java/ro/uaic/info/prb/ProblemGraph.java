@@ -4,27 +4,21 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class ProblemGraph extends SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> {
-    protected ProblemIO problemIO;
+
     protected Map<DefaultWeightedEdge,EdgeType> edgeTypeMap;
 
 
-    public ProblemGraph(ProblemIO problemIO) {
+    public ProblemGraph(int n, int m, int[][] cost) {
         super(DefaultWeightedEdge.class);
-        this.problemIO = problemIO;
         this.edgeTypeMap = new HashMap<>();
-        createGraph();
+        createGraph(n, m, cost);
     }
 
-    public void createGraph() {
-        int n = problemIO.getN();
-        int m = problemIO.getM();
-        List<Integer> depotsCapacity = problemIO.getDepotsCapacity();
-        int[][] cost = problemIO.getCost();
+    public void createGraph(int n, int m, int[][] cost) {
 
         for (int i = 0; i < n + m; i++) {
             this.addVertex(i);
@@ -34,8 +28,8 @@ public class ProblemGraph extends SimpleDirectedWeightedGraph<Integer, DefaultWe
             for (int j = 0; j < n + m; j++) {
                 if (cost[i][j] >= 0) {
                     DefaultWeightedEdge e = this.addEdge(i, j);
-                    if(cost[i][j]==0){
-                        cost[i][j]=1;
+                    if (cost[i][j] == 0) {
+                        cost[i][j] = 1;
                     }
                     this.setEdgeWeight(e, cost[i][j]);
                 }
@@ -44,10 +38,6 @@ public class ProblemGraph extends SimpleDirectedWeightedGraph<Integer, DefaultWe
     }
     public EdgeType getEdgeType(DefaultWeightedEdge e){
         return edgeTypeMap.get(e);
-    }
-
-    public ProblemIO getProblemIO() {
-        return problemIO;
     }
 
     public void duplicateVertexEdges(Integer vertexFrom ,Integer vertexTo){

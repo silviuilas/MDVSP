@@ -1,7 +1,6 @@
 package ro.uaic.info.aco;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
-;
 import ro.uaic.info.prb.EdgeType;
 import ro.uaic.info.prb.Tour;
 
@@ -16,7 +15,7 @@ public abstract class Ant {
     protected int currentCost = 0;
     protected int currentDepot;
     protected int unsatisfiedClients;
-    private int[] remainingDepotsNr;
+    private final int[] remainingDepotsNr;
     Map<Integer, Boolean> visitedNodes;
 
     public Ant(AntColony antColony) {
@@ -24,11 +23,11 @@ public abstract class Ant {
         antColonyGraph = antColony.getAntColonyGraph();
         visitedNodes = new HashMap<>();
         paths = new ArrayDeque<>();
-        int m = antColony.getAntColonyGraph().getProblemIO().getM();
+        int m = antColony.getAntColonyGraph().getM();
         remainingDepotsNr = new int[m];
         int depotNr = 0;
         for (Integer capacity :
-                antColony.getAntColonyGraph().getProblemIO().getDepotsCapacity()) {
+                antColony.getAntColonyGraph().getDepotsCapacity()) {
             remainingDepotsNr[depotNr] = capacity - 1;
             depotNr++;
         }
@@ -66,9 +65,6 @@ public abstract class Ant {
                     if (remainingTrips <= 0)
                         continue;
                 }
-                //usually let all normal trips happen
-                else if (antColonyGraph.getEdgeType(edge) == EdgeType.NORMAL) {
-                }
                 availableEdges.add(edge);
             }
         }
@@ -90,15 +86,12 @@ public abstract class Ant {
     }
 
     public boolean isFinished() {
-        if (getAvailableEdges(currentLocation).size() == 0 || isValid()) {
-            return true;
-        }
-        return false;
+        return getAvailableEdges(currentLocation).size() == 0 || isValid();
     }
 
     public int getUnsatisfiedClientsNr() throws Exception {
-        int n = antColonyGraph.getProblemIO().getN();
-        int m = antColonyGraph.getProblemIO().getM();
+        int n = antColonyGraph.getN();
+        int m = antColonyGraph.getM();
         int[] happyCustomers = new int[n];
         for (int i = 0; i < n; i++)
             happyCustomers[i] = 1;

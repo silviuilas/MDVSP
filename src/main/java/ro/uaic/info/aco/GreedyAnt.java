@@ -1,10 +1,8 @@
 package ro.uaic.info.aco;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
-import ro.uaic.info.prb.EdgeType;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -13,7 +11,7 @@ public class GreedyAnt extends Ant {
     public GreedyAnt(AntColony antColony) {
         super(antColony);
         Random random = new Random();
-        currentLocation = random.nextInt(antColonyGraph.getProblemIO().getM());
+        currentLocation = random.nextInt(antColonyGraph.getM());
         currentDepot = currentLocation;
     }
 
@@ -31,12 +29,7 @@ public class GreedyAnt extends Ant {
 
     public DefaultWeightedEdge getNextTrip(Integer position) {
         List<DefaultWeightedEdge> edges = getAvailableEdges(position);
-        Collections.sort(edges, new Comparator<DefaultWeightedEdge>() {
-            @Override
-            public int compare(DefaultWeightedEdge t1, DefaultWeightedEdge t2) {
-                return (int) (antColonyGraph.getEdgeWeight(t1) - antColonyGraph.getEdgeWeight(t2));
-            }
-        });
+        edges.sort((t1, t2) -> (int) (antColonyGraph.getEdgeWeight(t1) - antColonyGraph.getEdgeWeight(t2)));
 
         for (DefaultWeightedEdge edge :
                 edges) {

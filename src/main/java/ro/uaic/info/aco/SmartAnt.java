@@ -1,17 +1,16 @@
 package ro.uaic.info.aco;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
-import ro.uaic.info.prb.Tour;
-import ro.uaic.info.prb.EdgeType;
 
-import java.util.*;
+import java.util.List;
+import java.util.Random;
 
 public class SmartAnt extends Ant {
 
     public SmartAnt(AntColony antColony) {
         super(antColony);
         Random random = new Random();
-        currentLocation = random.nextInt(antColonyGraph.getProblemIO().getM());
+        currentLocation = random.nextInt(antColonyGraph.getM());
         currentDepot = currentLocation;
     }
 

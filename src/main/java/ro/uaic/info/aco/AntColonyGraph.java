@@ -1,7 +1,6 @@
 package ro.uaic.info.aco;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
-import ro.uaic.info.prb.ProblemIO;
 import ro.uaic.info.prb.EdgeType;
 import ro.uaic.info.prb.ProblemGraph;
 
@@ -11,18 +10,25 @@ import java.util.Map;
 
 
 public class AntColonyGraph extends ProblemGraph {
-    private Map<Integer,Integer> depotType;
+    private final Map<Integer, Integer> depotType;
     double[][] pheromoneTable;
+    private final int n;
+    private final int m;
+    private final int[][] cost;
+    private final List<Integer> depotsCapacity;
 
-    public AntColonyGraph(ProblemIO problemIO) {
-        super(problemIO);
+    public AntColonyGraph(int n, int m, int[][] cost, List<Integer> depotsCapacity) {
+        super(n, m, cost);
+        this.n = n;
+        this.m = m;
+        this.cost = cost;
+        this.depotsCapacity = depotsCapacity;
         depotType = new HashMap<>();
-        List<Integer> depotsCapacity = problemIO.getDepotsCapacity();
 
         //connect each depot
-        for(int i=0;i<problemIO.getM();i++) {
-            depotType.put(i,i);
-            for (int j = 0; j < problemIO.getM(); j++) {
+        for (int i = 0; i < m; i++) {
+            depotType.put(i, i);
+            for (int j = 0; j < m; j++) {
                 if (i != j) {
                     DefaultWeightedEdge e = this.addEdge(i, j);
                     this.setEdgeWeight(e, 1);
@@ -65,19 +71,36 @@ public class AntColonyGraph extends ProblemGraph {
 
     public boolean isDepot(int i){
         if(depotType.get(i)==null)
-            return i<problemIO.getM();
+            return i < m;
         else
-            return depotType.get(i)<problemIO.getM();
+            return depotType.get(i) < m;
     }
 
     public Map<Integer, Integer> getDepotType() {
         return depotType;
     }
 
-    public double getPheromone(int i,int j){
+    public double getPheromone(int i, int j) {
         return pheromoneTable[i][j];
     }
-    public void setPheromone(int i,int j,double nr){
-        pheromoneTable[i][j]=nr;
+
+    public void setPheromone(int i, int j, double nr) {
+        pheromoneTable[i][j] = nr;
+    }
+
+    public int getN() {
+        return n;
+    }
+
+    public int getM() {
+        return m;
+    }
+
+    public int[][] getCost() {
+        return cost;
+    }
+
+    public List<Integer> getDepotsCapacity() {
+        return depotsCapacity;
     }
 }

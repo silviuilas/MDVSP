@@ -25,10 +25,12 @@ public class SmartAnt extends Ant {
              availableEdges) {
             int source = antColonyGraph.getEdgeSource(edge);
             int target = antColonyGraph.getEdgeTarget(edge);
-            double pheromone=antColony.getAntColonyGraph().getPheromone(source,target);
+            double pheromone = antColony.getAntColonyGraph().getPheromone(source, target);
             double distance = antColonyGraph.getEdgeWeight(edge);
-            sum = sum+Math.pow(pheromone,antColony.getAlpha()) + Math.pow(1/distance,antColony.getBeta());
-            select[index]=sum;
+            if (distance < 1)
+                distance = 1;
+            sum = sum + Math.pow(pheromone, antColony.getAlpha()) + Math.pow((1 / distance), antColony.getBeta());
+            select[index] = sum;
             index++;
         }
 

@@ -9,19 +9,20 @@ import ro.uaic.info.aco.antSelection.ElitistSelection;
 import ro.uaic.info.prb.Tour;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class AntColony {
-    final int colonySize = 100;
-    final double alpha = 4;
+    final int colonySize = 50;
+    final double alpha = 3;
     final double beta = 2;
-    final double pheromoneAddition = 1;
+    final double pheromoneAddition = 10;
     final double pheromoneEvaporationPercent = 0.1;
     final double minPheromone = 1;
-    final double maxPheromone = 50;
+    final double maxPheromone = 500;
 
     AntColonyGraph antColonyGraph;
     AntSelectionStrategy antSelectionStrategy;
@@ -44,7 +45,30 @@ public class AntColony {
             evaluateAnts();
             updatePheromones();
             System.out.println(index + " The best had " + ants.get(0).wrapGetUnsatisfiedClientsNr() + " unsatisfied customers (average " + calculateAverageUnsatisfied() + ") with the total cost of " + ants.get(0).getCurrentCost() + "( average " + calculateAverageCost() + ")");
+            removeUselessDepots();
             index++;
+        }
+    }
+
+    public void removeUselessDepots() {
+        Ant ant = ants.get(0);
+        if (ant.wrapGetUnsatisfiedClientsNr() != 0)
+            return;
+        Deque<Tour> tours = ant.getPaths();
+        int size = antColonyGraph.getMaxNr();
+        int[] visited = new int[size];
+
+        for (Tour tour :
+                tours) {
+            for (Integer val :
+                    tour) {
+                visited[val] = 1;
+            }
+        }
+        for (int i = antColonyGraph.getM(); i < size; i++) {
+            if (visited[i] != 1 && antColonyGraph.containsVertex(i) && !antColonyGraph.isMaster(i) && antColonyGraph.isDepot(i)) {
+                antColonyGraph.removeVertex(i);
+            }
         }
     }
 
@@ -128,9 +152,7 @@ public class AntColony {
             for (DefaultWeightedEdge edge : antColonyGraph.edgesOf(vertex)) {
                 int i = antColonyGraph.getEdgeSource(edge);
                 int j = antColonyGraph.getEdgeTarget(edge);
-                if (antColonyGraph.getPheromone(i, j) >= minPheromone) {
-                    antColonyGraph.setPheromone(i, j, antColonyGraph.getPheromone(i, j) * (1 - pheromoneEvaporationPercent));
-                }
+                antColonyGraph.setPheromone(i, j, Math.max(antColonyGraph.getPheromone(i, j) * (1 - pheromoneEvaporationPercent), minPheromone));
             }
         }
     }

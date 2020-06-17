@@ -34,7 +34,7 @@ public class GreedyAnt extends Ant {
         for (DefaultWeightedEdge edge :
                 edges) {
             Integer target = antColonyGraph.getEdgeTarget(edge);
-            if (!antColonyGraph.isDepot(target)) {
+            if (!antColonyGraph.isDepot(target) && !antColonyGraph.isMaster(target)) {
                 return edge;
             }
         }

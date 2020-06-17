@@ -60,7 +60,7 @@ public abstract class Ant {
                         continue;
                 }
                 //don't go to the depot if you can't make a pull out trip
-                else if (antColonyGraph.getEdgeType(edge) == EdgeType.DEPOT_DEPOT) {
+                else if (antColonyGraph.getEdgeType(edge) == EdgeType.MASTER_PULL_OUT) {
                     int remainingTrips = getRemainingDepotsNr()[antColonyGraph.getDepotType().get(target)];
                     if (remainingTrips <= 0)
                         continue;
@@ -76,7 +76,7 @@ public abstract class Ant {
     public Integer moveOnce() {
         List<DefaultWeightedEdge> availableEdges = getAvailableEdges(currentLocation);
         DefaultWeightedEdge pickedEdge = pickAnEdge(availableEdges);
-        if (antColonyGraph.getEdgeType(pickedEdge) != EdgeType.DEPOT_DEPOT)
+        if (antColonyGraph.getEdgeType(pickedEdge) != EdgeType.MASTER_PULL_OUT && antColonyGraph.getEdgeType(pickedEdge) != EdgeType.MASTER_PULL_IN)
             return goToNextPosition(pickedEdge);
         else {
             currentLocation = antColonyGraph.getEdgeTarget(pickedEdge);
@@ -103,7 +103,7 @@ public abstract class Ant {
                     throw new Exception("The same client has been served twice");
                 }
                 DefaultWeightedEdge edge = antColonyGraph.getEdge(path.get(i - 1), id);
-                if (antColonyGraph.getEdgeWeight(edge) < 0) {
+                if (!antColonyGraph.containsEdge(edge) || antColonyGraph.getEdgeWeight(edge) < 0) {
                     throw new Exception("The path should not exist");
                 }
                 happyCustomers[id - m]--;

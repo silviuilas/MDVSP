@@ -1,4 +1,4 @@
-package ro.uaic.info.helppers;
+package ro.uaic.info.helpers;
 
 public class Pair<A, B> {
     private A first;

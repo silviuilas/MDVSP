@@ -8,6 +8,7 @@ import ro.uaic.info.aco.antSelection.AntSelectionStrategy;
 import ro.uaic.info.aco.antSelection.ElitistSelection;
 import ro.uaic.info.prb.Tour;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
@@ -19,11 +20,12 @@ public class AntColony {
     final int colonySize = 50;
     final double alpha = 3;
     final double beta = 2;
-    final double pheromoneAddition = 10;
-    final double pheromoneEvaporationPercent = 0.1;
+    final double pheromoneAddition = 50;
+    final double pheromoneEvaporationPercent = 0.15;
     final double minPheromone = 1;
-    final double maxPheromone = 500;
+    final double maxPheromone = 1000;
 
+    int index = 0;
     AntColonyGraph antColonyGraph;
     AntSelectionStrategy antSelectionStrategy;
     List<Ant> ants;
@@ -35,10 +37,9 @@ public class AntColony {
         initPheromones();
     }
 
-    public void run() {
-        int index = 0;
+    public Deque<Tour> run() {
         AntBuilder antBuilder = new GreedyAntBuilder();
-        while (true) {
+        while (condition()) {
             if (index == 1)
                 antBuilder = new SmartAntBuilder();
             ants = antSelectionStrategy.generateAnts(ants, this, antBuilder);
@@ -48,6 +49,26 @@ public class AntColony {
             removeUselessDepots();
             index++;
         }
+        Deque<Tour> bestAntTour = ants.get(0).getPaths();
+        return transformTourList(bestAntTour);
+    }
+
+    public boolean condition() {
+        return index <= 1000;
+    }
+
+    public Deque<Tour> transformTourList(Deque<Tour> antTour) {
+        Deque<Tour> newList = new ArrayDeque<>();
+        for (Tour tour :
+                antTour) {
+            Tour tour1 = (Tour) tour.clone();
+            int first = 0;
+            tour1.set(first, antColonyGraph.getDepotTypeInt(tour1.get(first)));
+            int last = tour1.size() - 1;
+            tour1.set(last, antColonyGraph.getDepotTypeInt(tour1.get(last)));
+            newList.add(tour1);
+        }
+        return newList;
     }
 
     public void removeUselessDepots() {

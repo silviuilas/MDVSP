@@ -94,6 +94,10 @@ public class AntColonyGraph extends ProblemGraph {
         return depotType;
     }
 
+    public Integer getDepotTypeInt(Integer val) {
+        return depotType.get(val);
+    }
+
     public double getPheromone(int i, int j) {
         return pheromoneTable[i][j];
     }

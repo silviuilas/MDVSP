@@ -1,6 +1,7 @@
-package ro.uaic.info.aco;
+package ro.uaic.info.aco.ant;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
+import ro.uaic.info.aco.AntColony;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +19,7 @@ public class GreedyAnt extends Ant {
     @Override
     public DefaultWeightedEdge pickAnEdge(List<DefaultWeightedEdge> availableEdges) {
         Collections.shuffle(availableEdges);
-        DefaultWeightedEdge nextTrip = getNextTrip(currentLocation);
+        DefaultWeightedEdge nextTrip = getShortestPath(availableEdges);
         if (nextTrip != null) {
             return nextTrip;
         }
@@ -26,9 +27,7 @@ public class GreedyAnt extends Ant {
     }
 
 
-
-    public DefaultWeightedEdge getNextTrip(Integer position) {
-        List<DefaultWeightedEdge> edges = getAvailableEdges(position);
+    public DefaultWeightedEdge getShortestPath(List<DefaultWeightedEdge> edges) {
         edges.sort((t1, t2) -> (int) (antColonyGraph.getEdgeWeight(t1) - antColonyGraph.getEdgeWeight(t2)));
 
         for (DefaultWeightedEdge edge :

@@ -1,8 +1,8 @@
 package ro.uaic.info.aco.antBuilder;
 
-import ro.uaic.info.aco.Ant;
 import ro.uaic.info.aco.AntColony;
-import ro.uaic.info.aco.GreedyAnt;
+import ro.uaic.info.aco.ant.Ant;
+import ro.uaic.info.aco.ant.GreedyAnt;
 
 public class GreedyAntBuilder implements AntBuilder {
     @Override

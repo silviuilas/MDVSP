@@ -1,5 +1,7 @@
 package ro.uaic.info.aco;
 
+import ro.uaic.info.aco.ant.Ant;
+
 import java.util.List;
 
 public class EvaluateOnThread implements Runnable {
@@ -18,7 +20,7 @@ public class EvaluateOnThread implements Runnable {
         for(int i=from;i<to;i++) {
             Ant ant=ants.get(i);
             ant.run();
-            //System.out.println(ant.wrapGetUnsatisfiedClientsNr() + " " + ant.getCurrentCost());
+            // System.out.println(ant.wrapGetUnsatisfiedClientsNr() + " " + ant.getCurrentCost());
         }
     }
 }

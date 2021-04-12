@@ -1,6 +1,7 @@
 package ro.uaic.info.aco;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
+import ro.uaic.info.aco.ant.Ant;
 import ro.uaic.info.aco.antBuilder.AntBuilder;
 import ro.uaic.info.aco.antBuilder.GreedyAntBuilder;
 import ro.uaic.info.aco.antBuilder.SmartAntBuilder;
@@ -17,13 +18,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class AntColony {
-    final int colonySize = 50;
-    final double alpha = 3;
-    final double beta = 2;
-    final double pheromoneAddition = 50;
-    final double pheromoneEvaporationPercent = 0.15;
+    final int colonySize = 30;
+    final double alpha = 5;
+    final double beta = 1;
+    final double pheromoneAddition = 0.3;
+    final double pheromoneEvaporationPercent = 0.05;
     final double minPheromone = 1;
-    final double maxPheromone = 1000;
+    final double maxPheromone = 20;
 
     int index = 0;
     AntColonyGraph antColonyGraph;
@@ -63,9 +64,9 @@ public class AntColony {
                 antTour) {
             Tour tour1 = (Tour) tour.clone();
             int first = 0;
-            tour1.set(first, antColonyGraph.getDepotTypeInt(tour1.get(first)));
+            tour1.set(first, tour1.get(first));
             int last = tour1.size() - 1;
-            tour1.set(last, antColonyGraph.getDepotTypeInt(tour1.get(last)));
+            tour1.set(last, tour1.get(last));
             newList.add(tour1);
         }
         return newList;
@@ -76,21 +77,27 @@ public class AntColony {
         if (ant.wrapGetUnsatisfiedClientsNr() != 0)
             return;
         Deque<Tour> tours = ant.getPaths();
-        int size = antColonyGraph.getMaxNr();
+        int size = antColonyGraph.getM();
         int[] visited = new int[size];
+        for (int i = 0; i < size; i++) {
+            visited[i] = 0;
+        }
 
         for (Tour tour :
                 tours) {
-            for (Integer val :
-                    tour) {
-                visited[val] = 1;
+            int start = tour.get(0);
+            int end = tour.get(tour.size() - 1);
+            if (start == end)
+                visited[start]++;
+            else {
+                System.out.println("Tour is not valid");
             }
         }
-        for (int i = antColonyGraph.getM(); i < size; i++) {
-            if (visited[i] != 1 && antColonyGraph.containsVertex(i) && !antColonyGraph.isMaster(i) && antColonyGraph.isDepot(i)) {
-                antColonyGraph.removeVertex(i);
-            }
+        //System.out.println(antColonyGraph.getDepotsCapacity().toString());
+        for (int i = 0; i < size; i++) {
+            antColonyGraph.getDepotsCapacity().set(i, visited[i]);
         }
+        //System.out.println(antColonyGraph.getDepotsCapacity().toString());
     }
 
     public String calculateAverageUnsatisfied() {
@@ -159,8 +166,9 @@ public class AntColony {
                 for (int i = 1; i < path.size(); i++) {
                     int last = path.get(i - 1);
                     int current = path.get(i);
-                    if (antColonyGraph.getPheromone(last, current) + pheromoneAddition / index < maxPheromone)
-                        antColonyGraph.setPheromone(last, current, antColonyGraph.pheromoneTable[last][current] + pheromoneAddition / index);
+                    double calculated_pheromone = antColonyGraph.getPheromone(last, current) + pheromoneAddition / index;
+                    if (calculated_pheromone < maxPheromone)
+                        antColonyGraph.setPheromone(last, current, calculated_pheromone);
                 }
             }
             index++;

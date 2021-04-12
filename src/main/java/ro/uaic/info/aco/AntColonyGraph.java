@@ -4,13 +4,10 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import ro.uaic.info.prb.EdgeType;
 import ro.uaic.info.prb.ProblemGraph;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 public class AntColonyGraph extends ProblemGraph {
-    private final Map<Integer, Integer> depotType;
     double[][] pheromoneTable;
     private final int n;
     private final int m;
@@ -24,26 +21,9 @@ public class AntColonyGraph extends ProblemGraph {
         this.m = m;
         this.cost = cost;
         this.depotsCapacity = depotsCapacity;
-        depotType = new HashMap<>();
 
-        //duplicate each depot with the number of vehicles
-        int depotNr = 0;
-        for (Integer capacity :
-                depotsCapacity) {
-            for (int j = 0; j < capacity; j++) {
-                int vertex = vertexSet().size();
-                this.addVertex(vertex);
-                duplicateVertexEdges(depotNr, vertex);
-                depotType.put(vertex, depotNr);
-                System.out.println(edgeSet().size());
-            }
-            depotNr++;
-        }
-        for (int i = 0; i < m; i++)
-            depotType.put(i, i);
         int vertex = vertexSet().size();
         this.addVertex(vertex);
-        depotType.put(vertex, m);
         for (Integer val :
                 this.vertexSet()) {
             if (isDepot(val)) {
@@ -77,25 +57,11 @@ public class AntColonyGraph extends ProblemGraph {
     }
 
     public boolean isDepot(int i) {
-        if (depotType.get(i) == null)
-            return i < m;
-        else
-            return depotType.get(i) < m;
+        return i < m && i >= 0;
     }
 
     public boolean isMaster(int i) {
-        if (depotType.get(i) == null)
-            return false;
-        else
-            return depotType.get(i) == this.m;
-    }
-
-    public Map<Integer, Integer> getDepotType() {
-        return depotType;
-    }
-
-    public Integer getDepotTypeInt(Integer val) {
-        return depotType.get(val);
+        return i == this.m + this.n;
     }
 
     public double getPheromone(int i, int j) {

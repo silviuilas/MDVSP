@@ -10,26 +10,29 @@ import java.util.List;
 public class ProblemIO {
     private int n;
     private int m;
-    private List<Integer>depotsCapacity = new ArrayList<>();
-    private int [][]cost;
+    private List<Integer> depotsCapacity = new ArrayList<>();
+    private int[][] cost;
 
     public void read(String filename) throws IOException {
         Path path = Paths.get(filename);
         List<String> lines = Files.readAllLines(path);
+        populate(lines);
+    }
+
+    public void populate(List<String> lines) {
         String sep = "\t";
-        String []oneLine = lines.get(0).split(sep);
+        String[] oneLine = lines.get(0).split(sep);
         m = Integer.parseInt(oneLine[0]); //depots
         n = Integer.parseInt(oneLine[1]); //trips
-        cost= new int[n+m][n+m];
-        for(int i=0;i<m;i++)
-            depotsCapacity.add(Integer.parseInt(oneLine[i+2]));
-        for(int i=0;i<n+m;i++){
-            oneLine=lines.get(i+1).split(sep);
-            for(int j=0;j<n+m;j++){
-                cost[i][j]=Integer.parseInt(oneLine[j]);
+        cost = new int[n + m][n + m];
+        for (int i = 0; i < m; i++)
+            depotsCapacity.add(Integer.parseInt(oneLine[i + 2]));
+        for (int i = 0; i < n + m; i++) {
+            oneLine = lines.get(i + 1).split(sep);
+            for (int j = 0; j < n + m; j++) {
+                cost[i][j] = Integer.parseInt(oneLine[j]);
             }
         }
-
     }
 
     public int getM() {

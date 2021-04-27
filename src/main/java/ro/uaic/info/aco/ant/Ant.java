@@ -30,7 +30,7 @@ public abstract class Ant {
         int depotNr = 0;
         for (Integer capacity :
                 antColony.getAntColonyGraph().getDepotsCapacity()) {
-            remainingDepotsNr[depotNr] = capacity - 1;
+            remainingDepotsNr[depotNr] = capacity;
             depotNr++;
         }
     }
@@ -67,6 +67,9 @@ public abstract class Ant {
             if ((visitedNodes.get(target) == null || !visitedNodes.get(target)) || (antColonyGraph.getEdgeType(edge) == EdgeType.MASTER_PULL_OUT || antColonyGraph.getEdgeType(edge) == EdgeType.MASTER_PULL_OUT || antColonyGraph.getEdgeType(edge) == EdgeType.PULL_IN)) {
                 //don't let pull in happen if the depot is different then the starting point
                 if (antColonyGraph.getEdgeType(edge) == EdgeType.PULL_IN) {
+                    // uncomment this if you want to test TSP
+//                    if (visitedNodes.size() + 1  < (antColonyGraph.getM() + antColonyGraph.getN()))
+//                        continue;
                     if (currentDepot != target) {
                         continue;
                     }

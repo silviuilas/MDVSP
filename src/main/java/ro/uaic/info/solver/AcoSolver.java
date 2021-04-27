@@ -8,10 +8,25 @@ import ro.uaic.info.prb.Tour;
 import java.util.Deque;
 
 public class AcoSolver implements Solver {
+    ProblemIO problemIO;
+    AntColonyGraph antColonyGraph;
+    AntColony antColony;
+
+
     @Override
-    public Deque<Tour> solve(ProblemIO problemIO) {
-        AntColonyGraph antColonyGraph = new AntColonyGraph(problemIO.getN(), problemIO.getM(), problemIO.getCost(), problemIO.getDepotsCapacity());
-        AntColony antColony = new AntColony(antColonyGraph);
+    public void init(ProblemIO problemIO) {
+        this.problemIO = problemIO;
+        antColonyGraph = new AntColonyGraph(problemIO.getN(), problemIO.getM(), problemIO.getCost(), problemIO.getDepotsCapacity());
+        antColony = new AntColony(antColonyGraph);
+    }
+
+    @Override
+    public Deque<Tour> solve() {
         return antColony.run();
+    }
+
+    @Override
+    public Deque<Tour> solveAnIter() {
+        return antColony.runOnce();
     }
 }

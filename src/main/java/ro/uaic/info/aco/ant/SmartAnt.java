@@ -17,7 +17,6 @@ public class SmartAnt extends Ant {
 
     public DefaultWeightedEdge pickAnEdge(List<DefaultWeightedEdge> availableEdges) {
         Random random = new Random();
-        int pheromoneTableN = antColonyGraph.vertexSet().size();
         double[] select = new double[availableEdges.size()];
         double sum = 0;
         //TODO finish
@@ -29,8 +28,11 @@ public class SmartAnt extends Ant {
             double pheromone = antColony.getAntColonyGraph().getPheromone(source, target);
             double distance = antColonyGraph.getEdgeWeight(edge);
             if (distance < 1)
-                distance = 1;
-            sum = sum + Math.pow(pheromone, antColony.getAlpha()) + Math.pow(((1 / distance) * 6000), antColony.getBeta());
+                distance = 50000;
+            double intensity = Math.pow(pheromone, antColony.getAlpha());
+            double relevance = Math.pow(((1 / distance)), antColony.getBeta());
+            double desirability = intensity * relevance;
+            sum = sum + (desirability);
             select[index] = sum;
             index++;
         }

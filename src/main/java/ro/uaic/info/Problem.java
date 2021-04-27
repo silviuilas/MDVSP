@@ -17,14 +17,24 @@ public class Problem {
         this.solver = solver;
     }
 
-    public void run() {
+    public Deque<Tour> run() {
         SolutionChecker solutionChecker = new SolutionChecker(problemIO);
-        Deque<Tour> solution = solver.solve(problemIO);
+        solver.init(problemIO);
+        Deque<Tour> solution = solver.solve();
         if (!solutionChecker.isValidSol(solution)) {
             System.out.println("The solution is not valid");
-            return;
+            return null;
         }
         CalculateSolutionCost calculateSolutionCost = new CalculateSolutionCost(problemIO);
         System.out.println("The solution is valid with the total cost of " + calculateSolutionCost.calculate(solution));
+        return solution;
+    }
+
+    public ProblemIO getProblemIO() {
+        return problemIO;
+    }
+
+    public Solver getSolver() {
+        return solver;
     }
 }

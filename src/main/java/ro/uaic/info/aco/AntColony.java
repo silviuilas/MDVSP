@@ -7,6 +7,7 @@ import ro.uaic.info.aco.antBuilder.GreedyAntBuilder;
 import ro.uaic.info.aco.antBuilder.SmartAntBuilder;
 import ro.uaic.info.aco.antSelection.AntSelectionStrategy;
 import ro.uaic.info.aco.antSelection.ElitistSelection;
+import ro.uaic.info.aco.antSelection.RandomSelection;
 import ro.uaic.info.prb.Tour;
 
 import java.util.ArrayDeque;
@@ -19,39 +20,49 @@ import java.util.concurrent.TimeUnit;
 
 public class AntColony {
     final int colonySize = 30;
-    final double alpha = 5;
-    final double beta = 1;
-    final double pheromoneAddition = 0.3;
-    final double pheromoneEvaporationPercent = 0.05;
+    final double alpha = 3;
+    final double beta = 4;
+    final double pheromoneAddition = 10;
+    final double pheromoneEvaporationPercent = 0.3;
     final double minPheromone = 1;
-    final double maxPheromone = 20;
+    final double maxPheromone = 1000;
 
     int index = 0;
     AntColonyGraph antColonyGraph;
     AntSelectionStrategy antSelectionStrategy;
+    AntBuilder antBuilder;
     List<Ant> ants;
 
     public AntColony(AntColonyGraph antColonyGraph) {
         this.antColonyGraph = antColonyGraph;
         ants = new ArrayList<>();
         antSelectionStrategy = new ElitistSelection();
+        antBuilder = new SmartAntBuilder();
+        index = 0;
         initPheromones();
     }
 
     public Deque<Tour> run() {
-        AntBuilder antBuilder = new GreedyAntBuilder();
+        Deque<Tour> bestAntTour = null;
+        int bestAntTourCost = 999999;
         while (condition()) {
-            if (index == 1)
-                antBuilder = new SmartAntBuilder();
-            ants = antSelectionStrategy.generateAnts(ants, this, antBuilder);
-            evaluateAnts();
-            updatePheromones();
-            System.out.println(index + " The best had " + ants.get(0).wrapGetUnsatisfiedClientsNr() + " unsatisfied customers (average " + calculateAverageUnsatisfied() + ") with the total cost of " + ants.get(0).getCurrentCost() + "( average " + calculateAverageCost() + ")");
-            removeUselessDepots();
-            index++;
+            runOnce();
+            if (ants.get(0).wrapGetUnsatisfiedClientsNr() == 0 && ants.get(0).getCurrentCost() < bestAntTourCost) {
+                bestAntTour = ants.get(0).getPaths();
+                bestAntTourCost = ants.get(0).getCurrentCost();
+            }
         }
-        Deque<Tour> bestAntTour = ants.get(0).getPaths();
         return transformTourList(bestAntTour);
+    }
+
+    public Deque<Tour> runOnce() {
+        ants = antSelectionStrategy.generateAnts(ants, this, antBuilder);
+        evaluateAnts();
+        updatePheromones();
+        System.out.println(index + " The best had " + ants.get(0).wrapGetUnsatisfiedClientsNr() + " unsatisfied customers (average " + calculateAverageUnsatisfied() + ") with the total cost of " + ants.get(0).getCurrentCost() + "( average " + calculateAverageCost() + ")");
+        removeUselessDepots();
+        index++;
+        return ants.get(0).getPaths();
     }
 
     public boolean condition() {
@@ -119,15 +130,15 @@ public class AntColony {
     }
 
     public void evaluateAnts() {
-        List<Ant> antsToEvaluate = new ArrayList<>();
         ExecutorService es = Executors.newCachedThreadPool();
+//        new EvaluateOnThread(ants, 0, colonySize).run();
+        int batch = 10;
         for (int i = 0; i < colonySize; i++) {
-            antsToEvaluate.add(ants.get(i));
-            if (i % 10 == 0 && i != 0) {
-                es.execute(new EvaluateOnThread(ants, i - 10, i));
+            if (i % batch == 0 && i != 0) {
+                es.execute(new EvaluateOnThread(ants, i - batch, i));
             }
         }
-        es.execute(new EvaluateOnThread(ants, colonySize - 10, colonySize));
+        es.execute(new EvaluateOnThread(ants, colonySize - batch, colonySize));
         es.shutdown();
         try {
             while (!es.awaitTermination(1, TimeUnit.MINUTES)) ;
@@ -177,11 +188,11 @@ public class AntColony {
     }
 
     public void pheromoneEvaporation() {
-        for (Integer vertex : antColonyGraph.vertexSet()) {
-            for (DefaultWeightedEdge edge : antColonyGraph.edgesOf(vertex)) {
-                int i = antColonyGraph.getEdgeSource(edge);
-                int j = antColonyGraph.getEdgeTarget(edge);
-                antColonyGraph.setPheromone(i, j, Math.max(antColonyGraph.getPheromone(i, j) * (1 - pheromoneEvaporationPercent), minPheromone));
+        int n = antColonyGraph.pheromoneTable.length;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (antColonyGraph.getPheromone(i, j) != 0)
+                    antColonyGraph.setPheromone(i, j, Math.max(antColonyGraph.getPheromone(i, j) * (1 - pheromoneEvaporationPercent), minPheromone));
             }
         }
     }

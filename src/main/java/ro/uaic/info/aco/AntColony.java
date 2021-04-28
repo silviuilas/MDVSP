@@ -20,12 +20,12 @@ import java.util.concurrent.TimeUnit;
 
 public class AntColony {
     final int colonySize = 30;
-    final double alpha = 3;
+    final double alpha = 2;
     final double beta = 4;
     final double pheromoneAddition = 10;
     final double pheromoneEvaporationPercent = 0.3;
     final double minPheromone = 1;
-    final double maxPheromone = 1000;
+    final double maxPheromone = 10000;
 
     int index = 0;
     AntColonyGraph antColonyGraph;
@@ -60,7 +60,7 @@ public class AntColony {
         evaluateAnts();
         updatePheromones();
         System.out.println(index + " The best had " + ants.get(0).wrapGetUnsatisfiedClientsNr() + " unsatisfied customers (average " + calculateAverageUnsatisfied() + ") with the total cost of " + ants.get(0).getCurrentCost() + "( average " + calculateAverageCost() + ")");
-        removeUselessDepots();
+        //removeUselessDepots();
         index++;
         return ants.get(0).getPaths();
     }

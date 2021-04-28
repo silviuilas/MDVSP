@@ -67,7 +67,7 @@ public abstract class Ant {
             if ((visitedNodes.get(target) == null || !visitedNodes.get(target)) || (antColonyGraph.getEdgeType(edge) == EdgeType.MASTER_PULL_OUT || antColonyGraph.getEdgeType(edge) == EdgeType.MASTER_PULL_OUT || antColonyGraph.getEdgeType(edge) == EdgeType.PULL_IN)) {
                 //don't let pull in happen if the depot is different then the starting point
                 if (antColonyGraph.getEdgeType(edge) == EdgeType.PULL_IN) {
-                    // uncomment this if you want to test TSP
+                    // uncomment this if you want better results at TSP else ignore
 //                    if (visitedNodes.size() + 1  < (antColonyGraph.getM() + antColonyGraph.getN()))
 //                        continue;
                     if (currentDepot != target) {
@@ -86,6 +86,9 @@ public abstract class Ant {
                     if (remainingTrips <= 0)
                         continue;
                 }
+                // uncomment this if you want to the ants to have a max capacity before returning
+                else if (this.getPaths().size() > 0 && this.getPaths().getLast().size() > 6)
+                    continue;
                 availableEdges.add(edge);
             }
         }

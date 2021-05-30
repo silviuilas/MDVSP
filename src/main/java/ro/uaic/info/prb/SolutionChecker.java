@@ -23,10 +23,10 @@ public class SolutionChecker {
             if (!tour.checkTour())
                 return false;
         }
-        return checkIfTheClientsAreSat(solution);
+        return areClientsAreSatisfied(solution);
     }
 
-    private boolean checkIfTheClientsAreSat(Deque<Tour> solution) {
+    private boolean areClientsAreSatisfied(Deque<Tour> solution) {
         int n = problemIO.getN();
         int m = problemIO.getM();
         int[] visitedNodes = new int[m + n];

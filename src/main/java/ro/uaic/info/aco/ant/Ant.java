@@ -16,8 +16,11 @@ public abstract class Ant {
     protected int currentLocation = 0;
     protected int currentCost = 0;
     protected int currentDepot;
+    protected boolean hasTheLastMoveBeenConnectedToMaster;
     protected int unsatisfiedClients;
     private final int[] remainingDepotsNr;
+    private List<DefaultWeightedEdge> availableEdgesCache;
+    private boolean isAvailableEdgesCacheValid = false;
     Map<Integer, Boolean> visitedNodes;
 
     public Ant(AntColony antColony) {
@@ -48,9 +51,14 @@ public abstract class Ant {
     public Integer moveOnce() {
         List<DefaultWeightedEdge> availableEdges = getAvailableEdges(currentLocation);
         DefaultWeightedEdge pickedEdge = pickAnEdge(availableEdges);
-        if (antColonyGraph.getEdgeType(pickedEdge) != EdgeType.MASTER_PULL_OUT && antColonyGraph.getEdgeType(pickedEdge) != EdgeType.MASTER_PULL_IN)
+        EdgeType edgeType = antColonyGraph.getEdgeType(pickedEdge);
+        isAvailableEdgesCacheValid = false;
+        if ( edgeType != EdgeType.MASTER_PULL_OUT && edgeType != EdgeType.MASTER_PULL_IN) {
+            hasTheLastMoveBeenConnectedToMaster = false;
             return goToNextPosition(pickedEdge);
+        }
         else {
+            hasTheLastMoveBeenConnectedToMaster = true;
             currentLocation = antColonyGraph.getEdgeTarget(pickedEdge);
             currentDepot = currentLocation;
             return currentLocation;
@@ -58,15 +66,19 @@ public abstract class Ant {
     }
 
     public List<DefaultWeightedEdge> getAvailableEdges(int position) {
+        if(isAvailableEdgesCacheValid){
+            return availableEdgesCache;
+        }
         Set<DefaultWeightedEdge> edges = antColonyGraph.outgoingEdgesOf(position);
         List<DefaultWeightedEdge> availableEdges = new ArrayList<>();
         for (DefaultWeightedEdge edge :
                 edges) {
             Integer target = antColonyGraph.getEdgeTarget(edge);
+            EdgeType edgeType = antColonyGraph.getEdgeType(edge);
             //only go to unvisited nodes
-            if ((visitedNodes.get(target) == null || !visitedNodes.get(target)) || (antColonyGraph.getEdgeType(edge) == EdgeType.MASTER_PULL_OUT || antColonyGraph.getEdgeType(edge) == EdgeType.MASTER_PULL_OUT || antColonyGraph.getEdgeType(edge) == EdgeType.PULL_IN)) {
+            if ((visitedNodes.get(target) == null || !visitedNodes.get(target)) || (edgeType == EdgeType.MASTER_PULL_OUT || edgeType == EdgeType.MASTER_PULL_IN || edgeType == EdgeType.PULL_IN)) {
                 //don't let pull in happen if the depot is different then the starting point
-                if (antColonyGraph.getEdgeType(edge) == EdgeType.PULL_IN) {
+                if (edgeType == EdgeType.PULL_IN) {
                     // uncomment this if you want better results at TSP else ignore
 //                    if (visitedNodes.size() + 1  < (antColonyGraph.getM() + antColonyGraph.getN()))
 //                        continue;
@@ -75,16 +87,21 @@ public abstract class Ant {
                     }
                 }
                 //don't let pull out happen if there are no depots of the same type to return to
-                else if (antColonyGraph.getEdgeType(edge) == EdgeType.PULL_OUT) {
+                else if (edgeType == EdgeType.PULL_OUT) {
                     int remainingTrips = getRemainingDepotsNr()[position];
                     if (remainingTrips <= 0)
                         continue;
                 }
                 //don't go to the depot if you can't make a pull out trip
-                else if (antColonyGraph.getEdgeType(edge) == EdgeType.MASTER_PULL_OUT) {
+                else if (edgeType == EdgeType.MASTER_PULL_OUT) {
                     int remainingTrips = getRemainingDepotsNr()[target];
                     if (remainingTrips <= 0)
                         continue;
+                }
+                else if (edgeType == EdgeType.MASTER_PULL_IN){
+                    if (hasTheLastMoveBeenConnectedToMaster){
+                        continue;
+                    }
                 }
                 // uncomment this if you want to the ants to have a max capacity before returning
                 else if (this.getPaths().size() > 0 && this.getPaths().getLast().size() > 6)
@@ -92,18 +109,21 @@ public abstract class Ant {
                 availableEdges.add(edge);
             }
         }
+        availableEdgesCache = availableEdges;
+        isAvailableEdgesCacheValid = true;
         return availableEdges;
     }
 
     public Integer goToNextPosition(DefaultWeightedEdge e) {
         Integer source = antColonyGraph.getEdgeSource(e);
         Integer target = antColonyGraph.getEdgeTarget(e);
-        if (antColonyGraph.getEdgeType(e) == EdgeType.PULL_OUT) {
+        EdgeType edgeType = antColonyGraph.getEdgeType(e);
+        if (edgeType == EdgeType.PULL_OUT) {
             getRemainingDepotsNr()[source]--;
             paths.add(new Tour());
         }
         paths.getLast().add(source);
-        if (antColonyGraph.getEdgeType(e) == EdgeType.PULL_IN) {
+        if (edgeType == EdgeType.PULL_IN) {
             paths.getLast().add(target);
         }
         visitedNodes.put(source, true);
@@ -144,7 +164,8 @@ public abstract class Ant {
 
     public boolean isValid() {
         try {
-            return getUnsatisfiedClientsNr() == 0;
+            return ((antColonyGraph.getN() + antColonyGraph.getM()) - visitedNodes.size()) == 0;
+            // return getUnsatisfiedClientsNr() == 0;
         } catch (Exception e) {
             e.printStackTrace();
             return false;

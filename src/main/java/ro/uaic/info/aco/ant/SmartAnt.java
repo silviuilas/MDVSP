@@ -19,7 +19,6 @@ public class SmartAnt extends Ant {
         Random random = new Random();
         double[] select = new double[availableEdges.size()];
         double sum = 0;
-        //TODO finish
         int index = 0;
         for (DefaultWeightedEdge edge :
                 availableEdges) {
@@ -28,7 +27,7 @@ public class SmartAnt extends Ant {
             double pheromone = antColony.getAntColonyGraph().getPheromone(source, target);
             double distance = antColonyGraph.getEdgeWeight(edge);
             if (distance < 1)
-                distance = 50000;
+                distance = 1;
             double intensity = Math.pow(pheromone, antColony.getAlpha());
             double relevance = Math.pow(((1 / distance)), antColony.getBeta());
             double desirability = intensity * relevance;
@@ -38,13 +37,32 @@ public class SmartAnt extends Ant {
         }
 
         double toFind = random.nextDouble() * sum;
+
+        // assert(binary_search(select, 0, availableEdges.size(), toFind) == normal_search(select, 0, availableEdges.size(), toFind));
+        int selected = normal_search(select, 0, availableEdges.size(), toFind);
+        return availableEdges.get(selected);
+    }
+
+    private int binary_search(double[] vec, int left, int right, double val) {
+        int middle;
+        while (left < right) {
+            middle = (left + right) / 2;
+            if (val < vec[middle])
+                right = middle;
+            else
+                left = middle + 1;
+        }
+        return left;
+    }
+
+    private int normal_search(double[] vec, int start, int end, double val) {
         int selected = -1;
-        for (int i = 0; i < availableEdges.size(); i++) {
-            if (toFind < select[i]) {
+        for (int i = start; i < end; i++) {
+            if (val < vec[i]) {
                 selected = i;
                 break;
             }
         }
-        return availableEdges.get(selected);
+        return selected;
     }
 }

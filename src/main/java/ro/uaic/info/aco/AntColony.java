@@ -18,12 +18,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.Integer.min;
+
 public class AntColony {
     final int colonySize = 30;
-    final double alpha = 2;
-    final double beta = 4;
-    final double pheromoneAddition = 10;
-    final double pheromoneEvaporationPercent = 0.3;
+    double alpha = 2;
+    double beta = 4;
+    double pheromoneAddition = 10;
+    double pheromoneEvaporationPercent = 0.3;
     final double minPheromone = 1;
     final double maxPheromone = 10000;
 
@@ -44,7 +46,7 @@ public class AntColony {
 
     public Deque<Tour> run() {
         Deque<Tour> bestAntTour = null;
-        int bestAntTourCost = 999999;
+        int bestAntTourCost = Integer.MAX_VALUE;
         while (condition()) {
             runOnce();
             if (ants.get(0).wrapGetUnsatisfiedClientsNr() == 0 && ants.get(0).getCurrentCost() < bestAntTourCost) {
@@ -52,6 +54,7 @@ public class AntColony {
                 bestAntTourCost = ants.get(0).getCurrentCost();
             }
         }
+        assert bestAntTour != null;
         return transformTourList(bestAntTour);
     }
 
@@ -108,7 +111,6 @@ public class AntColony {
         for (int i = 0; i < size; i++) {
             antColonyGraph.getDepotsCapacity().set(i, visited[i]);
         }
-        //System.out.println(antColonyGraph.getDepotsCapacity().toString());
     }
 
     public String calculateAverageUnsatisfied() {
@@ -132,7 +134,7 @@ public class AntColony {
     public void evaluateAnts() {
         ExecutorService es = Executors.newCachedThreadPool();
 //        new EvaluateOnThread(ants, 0, colonySize).run();
-        int batch = 10;
+        int batch = 5;
         for (int i = 0; i < colonySize; i++) {
             if (i % batch == 0 && i != 0) {
                 es.execute(new EvaluateOnThread(ants, i - batch, i));
@@ -216,4 +218,6 @@ public class AntColony {
     public int getColonySize() {
         return colonySize;
     }
+
+
 }

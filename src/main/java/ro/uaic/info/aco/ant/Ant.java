@@ -1,7 +1,7 @@
 package ro.uaic.info.aco.ant;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
-import ro.uaic.info.aco.AntColony;
+import ro.uaic.info.aco.acoVariants.AntColony;
 import ro.uaic.info.aco.AntColonyGraph;
 import ro.uaic.info.prb.EdgeType;
 import ro.uaic.info.prb.Tour;
@@ -17,17 +17,23 @@ public abstract class Ant {
     protected int currentCost = 0;
     protected int currentDepot;
     protected boolean hasTheLastMoveBeenConnectedToMaster;
+    protected DefaultWeightedEdge lastPickedEdge;
     protected int unsatisfiedClients;
     private final int[] remainingDepotsNr;
     private List<DefaultWeightedEdge> availableEdgesCache;
     private boolean isAvailableEdgesCacheValid = false;
     Map<Integer, Boolean> visitedNodes;
 
+    int numberOfDecisions;
+    int sumOfNumberOfAvailablePaths;
+
     public Ant(AntColony antColony) {
         this.antColony = antColony;
         antColonyGraph = antColony.getAntColonyGraph();
         visitedNodes = new HashMap<>();
         paths = new ArrayDeque<>();
+        numberOfDecisions = 0;
+        sumOfNumberOfAvailablePaths = 0;
         int m = antColony.getAntColonyGraph().getM();
         remainingDepotsNr = new int[m];
         int depotNr = 0;
@@ -53,12 +59,12 @@ public abstract class Ant {
         DefaultWeightedEdge pickedEdge = pickAnEdge(availableEdges);
         EdgeType edgeType = antColonyGraph.getEdgeType(pickedEdge);
         isAvailableEdgesCacheValid = false;
-        if ( edgeType != EdgeType.MASTER_PULL_OUT && edgeType != EdgeType.MASTER_PULL_IN) {
-            hasTheLastMoveBeenConnectedToMaster = false;
+        lastPickedEdge = pickedEdge;
+        if (edgeType != EdgeType.MASTER_PULL_OUT && edgeType != EdgeType.MASTER_PULL_IN) {
+            numberOfDecisions++;
+            sumOfNumberOfAvailablePaths += availableEdges.size();
             return goToNextPosition(pickedEdge);
-        }
-        else {
-            hasTheLastMoveBeenConnectedToMaster = true;
+        } else {
             currentLocation = antColonyGraph.getEdgeTarget(pickedEdge);
             currentDepot = currentLocation;
             return currentLocation;
@@ -66,11 +72,12 @@ public abstract class Ant {
     }
 
     public List<DefaultWeightedEdge> getAvailableEdges(int position) {
-        if(isAvailableEdgesCacheValid){
+        if (isAvailableEdgesCacheValid) {
             return availableEdgesCache;
         }
         Set<DefaultWeightedEdge> edges = antColonyGraph.outgoingEdgesOf(position);
         List<DefaultWeightedEdge> availableEdges = new ArrayList<>();
+        EdgeType lastPickedEdgeType = antColonyGraph.getEdgeType(lastPickedEdge);
         for (DefaultWeightedEdge edge :
                 edges) {
             Integer target = antColonyGraph.getEdgeTarget(edge);
@@ -97,15 +104,20 @@ public abstract class Ant {
                     int remainingTrips = getRemainingDepotsNr()[target];
                     if (remainingTrips <= 0)
                         continue;
+                } else if (edgeType == EdgeType.MASTER_PULL_IN) {
+                    if (lastPickedEdgeType == EdgeType.MASTER_PULL_OUT) {
+                        continue;
+                    }
                 }
-                else if (edgeType == EdgeType.MASTER_PULL_IN){
-                    if (hasTheLastMoveBeenConnectedToMaster){
+                if (edgeType != edgeType.MASTER_PULL_IN){
+                    if(lastPickedEdgeType == EdgeType.PULL_IN){
                         continue;
                     }
                 }
                 // uncomment this if you want to the ants to have a max capacity before returning
-                else if (this.getPaths().size() > 0 && this.getPaths().getLast().size() > 6)
-                    continue;
+//                if (this.getPaths().size() > 0 && this.getPaths().getLast().size() > 6)
+//                    if(edgeType == EdgeType.NORMAL)
+//                        continue;
                 availableEdges.add(edge);
             }
         }
@@ -198,5 +210,11 @@ public abstract class Ant {
         return remainingDepotsNr;
     }
 
+    public int getNumberOfDecisions() {
+        return numberOfDecisions;
+    }
 
+    public double getAvgOfNumberOfAvailablePaths() {
+        return (double) sumOfNumberOfAvailablePaths / (double) numberOfDecisions;
+    }
 }

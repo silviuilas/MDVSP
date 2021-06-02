@@ -1,7 +1,7 @@
 package ro.uaic.info.aco.ant;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
-import ro.uaic.info.aco.AntColony;
+import ro.uaic.info.aco.acoVariants.AntColony;
 
 import java.util.List;
 import java.util.Random;
@@ -10,8 +10,7 @@ public class SmartAnt extends Ant {
 
     public SmartAnt(AntColony antColony) {
         super(antColony);
-        Random random = new Random();
-        currentLocation = random.nextInt(antColonyGraph.getM());
+        currentLocation = antColonyGraph.getN() + antColonyGraph.getM();
         currentDepot = currentLocation;
     }
 
@@ -39,7 +38,7 @@ public class SmartAnt extends Ant {
         double toFind = random.nextDouble() * sum;
 
         // assert(binary_search(select, 0, availableEdges.size(), toFind) == normal_search(select, 0, availableEdges.size(), toFind));
-        int selected = normal_search(select, 0, availableEdges.size(), toFind);
+        int selected = binary_search(select, 0, availableEdges.size(), toFind);
         return availableEdges.get(selected);
     }
 

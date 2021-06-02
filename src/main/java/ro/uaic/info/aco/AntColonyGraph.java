@@ -4,6 +4,7 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import ro.uaic.info.prb.EdgeType;
 import ro.uaic.info.prb.ProblemGraph;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -20,7 +21,7 @@ public class AntColonyGraph extends ProblemGraph {
         this.n = n;
         this.m = m;
         this.cost = cost;
-        this.depotsCapacity = depotsCapacity;
+        this.depotsCapacity = new ArrayList<>(depotsCapacity);
 
         int vertex = vertexSet().size();
         this.addVertex(vertex);
@@ -90,5 +91,9 @@ public class AntColonyGraph extends ProblemGraph {
 
     public int getMaxNr() {
         return maxNr;
+    }
+
+    public double[][] getPheromoneTable() {
+        return pheromoneTable;
     }
 }

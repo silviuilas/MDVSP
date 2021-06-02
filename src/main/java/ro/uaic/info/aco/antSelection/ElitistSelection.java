@@ -1,6 +1,6 @@
 package ro.uaic.info.aco.antSelection;
 
-import ro.uaic.info.aco.AntColony;
+import ro.uaic.info.aco.acoVariants.AntColony;
 import ro.uaic.info.aco.ant.Ant;
 import ro.uaic.info.aco.antBuilder.AntBuilder;
 

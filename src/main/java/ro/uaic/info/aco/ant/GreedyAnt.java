@@ -1,7 +1,7 @@
 package ro.uaic.info.aco.ant;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
-import ro.uaic.info.aco.AntColony;
+import ro.uaic.info.aco.acoVariants.AntColony;
 
 import java.util.Collections;
 import java.util.List;

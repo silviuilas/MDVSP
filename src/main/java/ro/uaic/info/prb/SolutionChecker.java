@@ -10,6 +10,9 @@ public class SolutionChecker {
     }
 
     public boolean isValidSol(Deque<Tour> solution) {
+        if(solution == null){
+            return false;
+        }
         for (Tour tour :
                 solution) {
             //check if the the trip is actually possible

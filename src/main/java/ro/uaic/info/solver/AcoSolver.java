@@ -1,7 +1,10 @@
 package ro.uaic.info.solver;
 
-import ro.uaic.info.aco.AntColony;
+import ro.uaic.info.aco.acoVariants.AdaptingMMAS;
+import ro.uaic.info.aco.acoVariants.AntColony;
 import ro.uaic.info.aco.AntColonyGraph;
+import ro.uaic.info.aco.acoVariants.AntSystem;
+import ro.uaic.info.aco.acoVariants.MMAS;
 import ro.uaic.info.prb.ProblemIO;
 import ro.uaic.info.prb.Tour;
 
@@ -17,7 +20,7 @@ public class AcoSolver implements Solver {
     public void init(ProblemIO problemIO) {
         this.problemIO = problemIO;
         antColonyGraph = new AntColonyGraph(problemIO.getN(), problemIO.getM(), problemIO.getCost(), problemIO.getDepotsCapacity());
-        antColony = new AntColony(antColonyGraph);
+        antColony = new AdaptingMMAS(antColonyGraph);
     }
 
     @Override
@@ -28,5 +31,10 @@ public class AcoSolver implements Solver {
     @Override
     public Deque<Tour> solveAnIter() {
         return antColony.runOnce();
+    }
+
+    @Override
+    public void saveLogs(String name) {
+        antColony.getCustomLogs().saveToMemory(name);
     }
 }

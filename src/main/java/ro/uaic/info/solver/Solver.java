@@ -1,5 +1,6 @@
 package ro.uaic.info.solver;
 
+import ro.uaic.info.helpers.CustomLogs;
 import ro.uaic.info.prb.ProblemIO;
 import ro.uaic.info.prb.Tour;
 
@@ -11,4 +12,6 @@ public interface Solver {
     Deque<Tour> solve();
 
     Deque<Tour> solveAnIter();
+
+    void saveLogs(String name);
 }

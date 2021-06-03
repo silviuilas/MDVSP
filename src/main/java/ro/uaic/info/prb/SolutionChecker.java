@@ -10,7 +10,7 @@ public class SolutionChecker {
     }
 
     public boolean isValidSol(Deque<Tour> solution) {
-        if(solution == null){
+        if (solution == null) {
             return false;
         }
         for (Tour tour :

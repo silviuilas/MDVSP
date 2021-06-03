@@ -1,6 +1,5 @@
 package ro.uaic.info.solver;
 
-import ro.uaic.info.helpers.CustomLogs;
 import ro.uaic.info.prb.ProblemIO;
 import ro.uaic.info.prb.Tour;
 

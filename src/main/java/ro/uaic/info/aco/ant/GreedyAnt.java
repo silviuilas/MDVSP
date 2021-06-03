@@ -13,7 +13,6 @@ public class GreedyAnt extends Ant {
         super(antColony);
         Random random = new Random();
         currentLocation = random.nextInt(antColonyGraph.getM());
-        currentDepot = currentLocation;
     }
 
     @Override

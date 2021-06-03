@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class ProblemGraph extends SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> {
 
-    protected Map<DefaultWeightedEdge,EdgeType> edgeTypeMap;
+    protected Map<DefaultWeightedEdge, EdgeType> edgeTypeMap;
 
 
     public ProblemGraph(int n, int m, int[][] cost) {
@@ -36,24 +36,24 @@ public class ProblemGraph extends SimpleDirectedWeightedGraph<Integer, DefaultWe
             }
         }
     }
-    public EdgeType getEdgeType(DefaultWeightedEdge e){
+
+    public EdgeType getEdgeType(DefaultWeightedEdge e) {
         return edgeTypeMap.get(e);
     }
 
-    public void duplicateVertexEdges(Integer vertexFrom ,Integer vertexTo){
+    public void duplicateVertexEdges(Integer vertexFrom, Integer vertexTo) {
         Set<DefaultWeightedEdge> edges = this.edgesOf(vertexFrom);
-        for (DefaultWeightedEdge edge:
+        for (DefaultWeightedEdge edge :
                 edges) {
             Integer source = this.getEdgeSource(edge);
             Integer target = this.getEdgeTarget(edge);
-            if(source.equals(vertexFrom)){
-                DefaultWeightedEdge addedEdge=this.addEdge(vertexTo,target);
-                this.setEdgeWeight(addedEdge,this.getEdgeWeight(edge));
-            }
-            else if(target.equals(vertexFrom)){
-                DefaultWeightedEdge addedEdge=this.addEdge(source,vertexTo);
-                this.setEdgeWeight(addedEdge,this.getEdgeWeight(edge));
-                this.addEdge(source,vertexTo);
+            if (source.equals(vertexFrom)) {
+                DefaultWeightedEdge addedEdge = this.addEdge(vertexTo, target);
+                this.setEdgeWeight(addedEdge, this.getEdgeWeight(edge));
+            } else if (target.equals(vertexFrom)) {
+                DefaultWeightedEdge addedEdge = this.addEdge(source, vertexTo);
+                this.setEdgeWeight(addedEdge, this.getEdgeWeight(edge));
+                this.addEdge(source, vertexTo);
             }
         }
     }

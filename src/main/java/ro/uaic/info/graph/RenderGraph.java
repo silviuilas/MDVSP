@@ -1,31 +1,14 @@
 package ro.uaic.info.graph;
 
 import org.graphstream.algorithm.Algorithm;
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.geom.Point2;
-import org.graphstream.ui.geom.Point3;
-import org.graphstream.ui.swing_viewer.SwingViewer;
 import org.graphstream.ui.swing_viewer.ViewPanel;
-import org.graphstream.ui.view.View;
-import org.graphstream.ui.view.Viewer;
-import org.graphstream.ui.view.camera.Camera;
-import ro.uaic.info.Problem;
-import ro.uaic.info.aco.AntColonyGraph;
-import ro.uaic.info.prb.ProblemIO;
-import ro.uaic.info.prb.Tour;
-import ro.uaic.info.solver.AcoSolver;
-import ro.uaic.info.solver.Solver;
 
 import java.awt.*;
 import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Deque;
-import java.util.Iterator;
 
 public class RenderGraph {
 

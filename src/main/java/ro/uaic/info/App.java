@@ -1,10 +1,5 @@
 package ro.uaic.info;
 
-import org.graphstream.algorithm.Algorithm;
-import ro.uaic.info.graph.AcoAlgorithm;
-import ro.uaic.info.graph.AcoGraphGen;
-import ro.uaic.info.graph.RandomGraphGen;
-import ro.uaic.info.graph.RenderGraph;
 import ro.uaic.info.prb.ProblemIO;
 import ro.uaic.info.solver.AcoSolver;
 import ro.uaic.info.solver.Solver;
@@ -33,7 +28,7 @@ public class App {
         Problem problem = new Problem(problemIO, solver);
         for (int i = 0; i < 30; i++) {
             problem.run();
-            ((AcoSolver) solver).saveLogs("run" + i);
+            solver.saveLogs("run" + i);
         }
     }
 }

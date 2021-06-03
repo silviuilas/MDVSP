@@ -1,6 +1,5 @@
 package ro.uaic.info.aco.acoVariants;
 
-import org.jgrapht.graph.DefaultWeightedEdge;
 import ro.uaic.info.aco.AntColonyGraph;
 import ro.uaic.info.aco.EvaluateOnThread;
 import ro.uaic.info.aco.ant.Ant;
@@ -29,8 +28,8 @@ public abstract class AntColony {
     int index = 0;
 
     AntColonyGraph antColonyGraph;
-    AntSelectionStrategy antSelectionStrategy;
-    AntBuilder antBuilder;
+    AntSelectionStrategy antSelectionStrategy = new ElitistSelection();
+    AntBuilder antBuilder = new SmartAntBuilder();
     List<Ant> ants;
     CustomLogs customLogs;
 
@@ -38,7 +37,6 @@ public abstract class AntColony {
         this.antColonyGraph = antColonyGraph;
         customLogs = new CustomLogs("");
         ants = new ArrayList<>();
-        index = 0;
         initPheromones();
     }
 
@@ -48,8 +46,8 @@ public abstract class AntColony {
         while (condition()) {
             runOnce();
             Ant bestAntThisIteration = getBestAntThisIteration();
-            if (bestAntThisIteration.wrapGetUnsatisfiedClientsNr() == 0 && bestAntThisIteration.getCurrentCost() < bestAntTourCost) {
-                bestAntTour = bestAntThisIteration.getPaths();
+            if (bestAntThisIteration.getNumberOfNotVisitedVertexes() == 0 && bestAntThisIteration.getCurrentCost() < bestAntTourCost) {
+//                bestAntTour = bestAntThisIteration.getPaths();
                 bestAntTourCost = bestAntThisIteration.getCurrentCost();
             }
         }
@@ -63,7 +61,10 @@ public abstract class AntColony {
         updatePheromones();
         Ant bestAntInThisIteration = getBestAntThisIteration();
         showResults(bestAntInThisIteration);
-        return bestAntInThisIteration.getPaths();
+        // return getTourFromAnt(bestAntInThisIteration);
+        System.out.println(index + " The best had " + getBestAntThisIteration().getNumberOfNotVisitedVertexes() + " unsatisfied customers (average " + calculateAverageUnsatisfied() + ") with the total cost of " + getBestAntThisIteration().getCurrentCost() + "( average " + calculateAverageCost() + ")");
+        index++;
+        return null;
     }
 
     public abstract boolean condition();
@@ -72,14 +73,9 @@ public abstract class AntColony {
         ants = antSelectionStrategy.generateAnts(ants, this, antBuilder);
     }
 
-    public void showResults(Ant bestAntInThisIteration){
-        if (customLogs != null) {
-            String outputToFile = index + "," + bestAntInThisIteration.wrapGetUnsatisfiedClientsNr() + "," + bestAntInThisIteration.getCurrentCost() + "," + calculateAverageUnsatisfied() + "," + calculateAverageCost() + "\n";
-            customLogs.addToValue(outputToFile);
-        }
-        System.out.println(index + " The best had " + bestAntInThisIteration.wrapGetUnsatisfiedClientsNr() + " unsatisfied customers (average " + calculateAverageUnsatisfied() + ") with the total cost of " + bestAntInThisIteration.getCurrentCost() + "( average " + calculateAverageCost() + ")");
-        index++;
+    public void showResults(Ant bestAntInThisIteration) {
     }
+
 
     public void evaluateAnts() {
         ExecutorService es = Executors.newCachedThreadPool();
@@ -99,38 +95,11 @@ public abstract class AntColony {
         }
     }
 
-    public abstract void initPheromones();
-
-    public abstract void updatePheromones();
-
-    public abstract void pheromoneEvaporation();
-
-    public abstract Ant getBestAntThisIteration();
-
-    public String calculateAverageUnsatisfied() {
-        double sum = 0.0;
-        for (Ant ant :
-                ants) {
-            sum += ant.wrapGetUnsatisfiedClientsNr();
-        }
-        return Double.toString(sum / ants.size());
-    }
-
-    public String calculateAverageCost() {
-        double sum = 0.0;
-        for (Ant ant :
-                ants) {
-            sum += ant.getCurrentCost();
-        }
-        return Double.toString(sum / ants.size());
-    }
-
-
     public void removeUselessDepots() {
         Ant ant = getBestAntThisIteration();
-        if (ant.wrapGetUnsatisfiedClientsNr() != 0)
+        if (ant.getNumberOfNotVisitedVertexes() != 0)
             return;
-        Deque<Tour> tours = ant.getPaths();
+        Deque<Tour> tours = ant.getDequeTour();
         int size = antColonyGraph.getM();
         int[] visited = new int[size];
         for (int i = 0; i < size; i++) {
@@ -153,6 +122,22 @@ public abstract class AntColony {
         }
     }
 
+    public void evaluateAntsSync() {
+        for (int i = 0; i < ants.size(); i++) {
+            Ant ant = ants.get(i);
+            ant.run();
+        }
+    }
+
+    public abstract void initPheromones();
+
+    public abstract void updatePheromones();
+
+    public abstract void pheromoneEvaporation();
+
+    public abstract Ant getBestAntThisIteration();
+
+
     public Deque<Tour> transformTourList(Deque<Tour> antTour) {
         if (antTour == null) {
             return null;
@@ -168,6 +153,24 @@ public abstract class AntColony {
             newList.add(tour1);
         }
         return newList;
+    }
+
+    public String calculateAverageUnsatisfied() {
+        double sum = 0.0;
+        for (Ant ant :
+                ants) {
+            sum += ant.getNumberOfNotVisitedVertexes();
+        }
+        return Double.toString(sum / ants.size());
+    }
+
+    public String calculateAverageCost() {
+        double sum = 0.0;
+        for (Ant ant :
+                ants) {
+            sum += ant.getCurrentCost();
+        }
+        return Double.toString(sum / ants.size());
     }
 
     public void setAntSelectionStrategy(AntSelectionStrategy antSelectionStrategy) {
@@ -186,24 +189,28 @@ public abstract class AntColony {
         return colonySize;
     }
 
+    public void setColonySize(int colonySize) {
+        this.colonySize = colonySize;
+    }
+
     public double getAlpha() {
         return alpha;
-    }
-
-    public double getBeta() {
-        return beta;
-    }
-
-    public AntColonyGraph getAntColonyGraph() {
-        return antColonyGraph;
     }
 
     public void setAlpha(double alpha) {
         this.alpha = alpha;
     }
 
+    public double getBeta() {
+        return beta;
+    }
+
     public void setBeta(double beta) {
         this.beta = beta;
+    }
+
+    public AntColonyGraph getAntColonyGraph() {
+        return antColonyGraph;
     }
 
     public void setPheromoneAddition(double pheromoneAddition) {
@@ -212,9 +219,5 @@ public abstract class AntColony {
 
     public void setPheromoneEvaporationPercent(double pheromoneEvaporationPercent) {
         this.pheromoneEvaporationPercent = pheromoneEvaporationPercent;
-    }
-
-    public void setColonySize(int colonySize) {
-        this.colonySize = colonySize;
     }
 }

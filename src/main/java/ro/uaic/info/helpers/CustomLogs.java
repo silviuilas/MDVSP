@@ -3,7 +3,6 @@ package ro.uaic.info.helpers;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 public class CustomLogs {
     String values;

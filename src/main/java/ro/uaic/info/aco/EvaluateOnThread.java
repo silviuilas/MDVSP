@@ -17,8 +17,8 @@ public class EvaluateOnThread implements Runnable {
 
     @Override
     public void run() {
-        for(int i=from;i<to;i++) {
-            Ant ant=ants.get(i);
+        for (int i = from; i < to; i++) {
+            Ant ant = ants.get(i);
             ant.run();
             // System.out.println(ant.wrapGetUnsatisfiedClientsNr() + " " + ant.getCurrentCost());
         }

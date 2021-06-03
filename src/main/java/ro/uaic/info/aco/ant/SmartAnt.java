@@ -10,8 +10,7 @@ public class SmartAnt extends Ant {
 
     public SmartAnt(AntColony antColony) {
         super(antColony);
-        currentLocation = antColonyGraph.getN() + antColonyGraph.getM();
-        currentDepot = currentLocation;
+        currentLocation = 0;
     }
 
     public DefaultWeightedEdge pickAnEdge(List<DefaultWeightedEdge> availableEdges) {

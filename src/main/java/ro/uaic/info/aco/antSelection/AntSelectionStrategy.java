@@ -7,5 +7,5 @@ import ro.uaic.info.aco.antBuilder.AntBuilder;
 import java.util.List;
 
 public interface AntSelectionStrategy {
-    List<Ant> generateAnts(List<Ant> oldAnts, AntColony antColony, AntBuilder antBuilder);
+    List<Ant> generateAnts(List<Ant> oldAnts, AntColony antColony, AntBuilder PureantBuilder);
 }

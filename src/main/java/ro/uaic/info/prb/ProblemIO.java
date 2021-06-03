@@ -10,7 +10,7 @@ import java.util.List;
 public class ProblemIO {
     private int n;
     private int m;
-    private List<Integer> depotsCapacity = new ArrayList<>();
+    private final List<Integer> depotsCapacity = new ArrayList<>();
     private int[][] cost;
 
     public void read(String filename) throws IOException {

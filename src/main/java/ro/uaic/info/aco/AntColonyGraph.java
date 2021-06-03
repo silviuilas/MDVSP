@@ -5,16 +5,19 @@ import ro.uaic.info.prb.EdgeType;
 import ro.uaic.info.prb.ProblemGraph;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class AntColonyGraph extends ProblemGraph {
-    double[][] pheromoneTable;
     private final int n;
     private final int m;
     private final int[][] cost;
-    private final List<Integer> depotsCapacity;
     private final int maxNr;
+    double[][] pheromoneTable;
+    List<Integer> depotsCapacity;
+    private final Map<Integer, Boolean> isVertexRepeatable = new HashMap<>();
 
     public AntColonyGraph(int n, int m, int[][] cost, List<Integer> depotsCapacity) {
         super(n, m, cost);
@@ -22,9 +25,16 @@ public class AntColonyGraph extends ProblemGraph {
         this.m = m;
         this.cost = cost;
         this.depotsCapacity = new ArrayList<>(depotsCapacity);
+        maxNr = vertexSet().size();
+        // TODO model graph to our needs (peer to peer or server-client)
+        initServerClientModel();
+        pheromoneTable = new double[vertexSet().size()][vertexSet().size()];
+    }
 
+    public void initServerClientModel() {
         int vertex = vertexSet().size();
         this.addVertex(vertex);
+        this.isVertexRepeatable.put(vertex, true);
         for (Integer val :
                 this.vertexSet()) {
             if (isDepot(val)) {
@@ -32,11 +42,10 @@ public class AntColonyGraph extends ProblemGraph {
                 this.addEdge(val, vertex);
                 this.setEdgeWeight(vertex, val, 0);
                 this.setEdgeWeight(val, vertex, 0);
+                this.isVertexRepeatable.put(val, true);
             }
         }
         initEdgeTypeMap();
-        pheromoneTable = new double[vertexSet().size()][vertexSet().size()];
-        maxNr = vertexSet().size();
     }
 
     public void initEdgeTypeMap() {
@@ -85,15 +94,19 @@ public class AntColonyGraph extends ProblemGraph {
         return cost;
     }
 
-    public List<Integer> getDepotsCapacity() {
-        return depotsCapacity;
-    }
-
     public int getMaxNr() {
         return maxNr;
     }
 
     public double[][] getPheromoneTable() {
         return pheromoneTable;
+    }
+
+    public Map<Integer, Boolean> getIsVertexRepeatable() {
+        return isVertexRepeatable;
+    }
+
+    public List<Integer> getDepotsCapacity() {
+        return depotsCapacity;
     }
 }

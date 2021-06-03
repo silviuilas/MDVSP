@@ -3,22 +3,21 @@ package ro.uaic.info.aco.acoVariants;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import ro.uaic.info.aco.AntColonyGraph;
 import ro.uaic.info.aco.ant.Ant;
-import ro.uaic.info.aco.antBuilder.SmartAntBuilder;
+import ro.uaic.info.aco.antBuilder.MdvspAntBuilder;
 import ro.uaic.info.aco.antSelection.ElitistSelection;
 import ro.uaic.info.prb.Tour;
 
 import java.util.Deque;
+import java.util.List;
 
 public class MMAS extends AntColony {
-    private final double minPheromone = 0.000001;
-    private final double maxPheromone = 1;
     public double maxPher = 1;
     public double minPher;
     public double p_best;
 
     public MMAS(AntColonyGraph antColonyGraph) {
         super(antColonyGraph);
-        this.setAntBuilder(new SmartAntBuilder());
+        this.setAntBuilder(new MdvspAntBuilder());
         this.setAntSelectionStrategy(new ElitistSelection());
         this.setAlpha(1);
         this.setBeta(2);
@@ -63,20 +62,22 @@ public class MMAS extends AntColony {
     @Override
     public void updatePheromones() {
         sortAnts();
-        for (Ant ant : ants) {
-            for (Tour path :
-                    ant.getPaths()) {
-                int current_cost = ant.getCurrentCost();
-                for (int i = 1; i < path.size(); i++) {
-                    int last = path.get(i - 1);
-                    int current = path.get(i);
-                    double calculated_pheromone = antColonyGraph.getPheromone(last, current) + ((1.0 / current_cost));
-                    antColonyGraph.setPheromone(last, current, calculated_pheromone);
-                }
-            }
-            index++;
-            break;
+
+        Ant ant = ants.get(0);
+        int size = ant.getAntsVisitedPath().size();
+        List<Integer> path = ant.getAntsVisitedPath();
+        Ant bestAnt = getBestAntThisIteration();
+        for (int i = 1; i < size; i++) {
+            int source = path.get(i - 1);
+            int target = path.get(i);
+            double calculated_pheromone = antColonyGraph.getPheromone(source, target) + ((1.0 / bestAnt.getCurrentCost()));
+            antColonyGraph.setPheromone(source, target, calculated_pheromone);
         }
+        checkConstrains();
+        pheromoneEvaporation();
+    }
+
+    public void checkConstrains() {
         int n = antColonyGraph.getPheromoneTable().length;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -92,7 +93,6 @@ public class MMAS extends AntColony {
                 }
             }
         }
-        pheromoneEvaporation();
     }
 
     @Override
@@ -113,8 +113,8 @@ public class MMAS extends AntColony {
 
     public void sortAnts() {
         ants.sort((ant1, ant2) -> {
-            int unsatisfiedNr1 = ant1.wrapGetUnsatisfiedClientsNr();
-            int unsatisfiedNr2 = ant2.wrapGetUnsatisfiedClientsNr();
+            int unsatisfiedNr1 = ant1.getNumberOfNotVisitedVertexes();
+            int unsatisfiedNr2 = ant2.getNumberOfNotVisitedVertexes();
             if (unsatisfiedNr1 == 0 && unsatisfiedNr2 > 0)
                 return -1;
             else if (unsatisfiedNr1 > 0 && unsatisfiedNr2 == 0)
@@ -122,7 +122,7 @@ public class MMAS extends AntColony {
             else if (unsatisfiedNr1 == 0 && unsatisfiedNr2 == 0)
                 return ant1.getCurrentCost() - ant2.getCurrentCost();
             else
-                return ant1.wrapGetUnsatisfiedClientsNr() - ant2.wrapGetUnsatisfiedClientsNr();
+                return ant1.getNumberOfNotVisitedVertexes() - ant2.getNumberOfNotVisitedVertexes();
         });
     }
 }

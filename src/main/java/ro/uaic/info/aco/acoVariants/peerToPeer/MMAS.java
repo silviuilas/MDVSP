@@ -1,7 +1,8 @@
-package ro.uaic.info.aco.acoVariants;
+package ro.uaic.info.aco.acoVariants.peerToPeer;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
-import ro.uaic.info.aco.AntColonyGraph;
+import ro.uaic.info.aco.acoVariants.AntColony;
+import ro.uaic.info.aco.graph.AntColonyGraph;
 import ro.uaic.info.aco.ant.Ant;
 import ro.uaic.info.aco.antBuilder.MdvspAntBuilder;
 import ro.uaic.info.aco.antSelection.ElitistSelection;

@@ -1,16 +1,17 @@
 package ro.uaic.info.aco.ant;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
-import ro.uaic.info.aco.AntColonyGraph;
 import ro.uaic.info.aco.AvailableEdgeRestriction;
 import ro.uaic.info.aco.acoVariants.AntColony;
+import ro.uaic.info.aco.graph.AntColonyGraph;
+import ro.uaic.info.aco.graph.AntColonyGraphPeerToPeer;
 import ro.uaic.info.prb.EdgeType;
 import ro.uaic.info.prb.Tour;
 
 import java.util.*;
 
 public abstract class Ant {
-    private final Map<Integer, Boolean> visitedNodes = new HashMap<>();
+    protected final Map<Integer, Integer> timesNodesWhereVisited = new HashMap<>();
     private final List<AvailableEdgeRestriction> availableEdgeRestrictions = new ArrayList<>();
     private final List<Integer> antsVisitedPath = new ArrayList<>();
     private final List<DefaultWeightedEdge> antsVisitedPathEdges = new ArrayList<>();
@@ -30,6 +31,7 @@ public abstract class Ant {
     }
 
     public void run() {
+        antsVisitedPath.add(currentLocation);
         while (!isFinished()) {
             moveOnce();
         }
@@ -58,16 +60,18 @@ public abstract class Ant {
         for (DefaultWeightedEdge edge :
                 edges) {
             Integer target = antColonyGraph.getEdgeTarget(edge);
-            if ((visitedNodes.get(target) != null) && antColonyGraph.getIsVertexRepeatable().get(target) == null) {
+            if ((timesNodesWhereVisited.get(target) != null) && antColonyGraph.getIsVertexRepeatable().get(target) == null) {
                 availableEdges.remove(edge);
-            }
-            for (AvailableEdgeRestriction availableEdgeRestriction :
-                    availableEdgeRestrictions) {
-                if (availableEdgeRestriction.shouldRemoveEdge(edge)) {
-                    availableEdges.remove(edge);
+            } else {
+                for (AvailableEdgeRestriction availableEdgeRestriction :
+                        availableEdgeRestrictions) {
+                    if (availableEdgeRestriction.shouldRemoveEdge(edge)) {
+                        availableEdges.remove(edge);
+                    }
                 }
             }
         }
+        // System.out.println(position);
         if (availableEdges.size() <= 1) {
             System.out.print("");
         }
@@ -81,7 +85,9 @@ public abstract class Ant {
         Integer target = antColonyGraph.getEdgeTarget(e);
         antsVisitedPath.add(target);
         antsVisitedPathEdges.add(e);
-        visitedNodes.put(source, true);
+        timesNodesWhereVisited.putIfAbsent(source, 0);
+        int nr = timesNodesWhereVisited.get(source);
+        timesNodesWhereVisited.put(source, nr + 1);
         currentLocation = target;
         currentCost += antColonyGraph.getEdgeWeight(e);
         // System.out.println("remaining to visit " + getNumberOfNotVisitedVertexes() + " from " + source + " visited " + target);
@@ -92,7 +98,7 @@ public abstract class Ant {
     public abstract DefaultWeightedEdge pickAnEdge(List<DefaultWeightedEdge> availableEdges);
 
     public int getNumberOfNotVisitedVertexes() {
-        return ((antColonyGraph.getN() + antColonyGraph.getM()) - visitedNodes.size());
+        return ((antColonyGraph.vertexSet().size()) - timesNodesWhereVisited.size());
     }
 
     public boolean isValid() {
@@ -110,17 +116,26 @@ public abstract class Ant {
         for (DefaultWeightedEdge edge :
                 antsVisitedPathEdges) {
             EdgeType edgeType = antColonyGraph.getEdgeType(edge);
+            // TODO make it work for master depot
+            Integer source = antColonyGraph.getEdgeSource(edge);
+            Integer target = antColonyGraph.getEdgeTarget(edge);
+            Integer source1 = ((AntColonyGraphPeerToPeer) antColonyGraph).getVertexActualValue().get(source);
+            if(source1 != null)
+                source = source1;
+            Integer target1 = ((AntColonyGraphPeerToPeer) antColonyGraph).getVertexActualValue().get(target);
+            if(target1 != null)
+                target = target1;
             if (edgeType == EdgeType.PULL_OUT) {
                 tour = new Tour();
-                tour.add(antColonyGraph.getEdgeSource(edge));
-                tour.add(antColonyGraph.getEdgeTarget(edge));
+                tour.add(source);
+                tour.add(target);
             } else if (edgeType == EdgeType.PULL_IN) {
                 assert (tour != null);
-                tour.add(antColonyGraph.getEdgeTarget(edge));
+                tour.add(target);
                 deque.add(tour);
             } else if (edgeType == EdgeType.NORMAL) {
                 assert (tour != null);
-                tour.add(antColonyGraph.getEdgeTarget(edge));
+                tour.add(target);
             }
         }
         return deque;
@@ -143,10 +158,9 @@ public abstract class Ant {
         availableEdgeRestrictions.add(availableEdgeRestriction);
     }
 
-    public Map<Integer, Boolean> getVisitedNodes() {
-        return visitedNodes;
+    public Map<Integer, Integer> getTimesNodesWhereVisited() {
+        return timesNodesWhereVisited;
     }
-
 
     public DefaultWeightedEdge getLastPickedEdge() {
         return lastPickedEdge;

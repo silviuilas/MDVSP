@@ -1,5 +1,9 @@
 package ro.uaic.info;
 
+import org.graphstream.algorithm.Algorithm;
+import ro.uaic.info.graph.AcoAlgorithm;
+import ro.uaic.info.graph.AcoGraphGen;
+import ro.uaic.info.graph.RenderGraph;
 import ro.uaic.info.prb.ProblemIO;
 import ro.uaic.info.solver.AcoSolver;
 import ro.uaic.info.solver.Solver;
@@ -8,7 +12,7 @@ import java.io.IOException;
 
 public class App {
     public static void main(String[] args) throws IOException {
-//        AcoGraphGen randomGraphGen = new AcoGraphGen(5, 200, new int[]{15, 15, 15, 15, 15}, 1000, 1000);
+//        AcoGraphGen randomGraphGen = new AcoGraphGen(5, 50, new int[]{15, 15, 15, 15, 15}, 1000, 1000);
 //        RenderGraph renderGraph = new RenderGraph(randomGraphGen.getGraph());
 //
 //        ProblemIO problemIO = new ProblemIO();

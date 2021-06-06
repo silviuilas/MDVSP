@@ -27,7 +27,8 @@ public class SmartAnt extends Ant {
             if (distance < 1)
                 distance = 1;
             double intensity = Math.pow(pheromone, antColony.getAlpha());
-            double relevance = Math.pow(((1 / distance)), antColony.getBeta());
+            int connectivity = this.antColonyGraph.getConnectivityValues().get(target);
+            double relevance = Math.pow(((1 / distance)) * connectivity, antColony.getBeta());
             double desirability = intensity * relevance;
             sum = sum + (desirability);
             select[index] = sum;

@@ -1,7 +1,7 @@
 package ro.uaic.info.aco.acoVariants;
 
-import ro.uaic.info.aco.AntColonyGraph;
 import ro.uaic.info.aco.EvaluateOnThread;
+import ro.uaic.info.aco.graph.AntColonyGraph;
 import ro.uaic.info.aco.ant.Ant;
 import ro.uaic.info.aco.antBuilder.AntBuilder;
 import ro.uaic.info.aco.antBuilder.SmartAntBuilder;
@@ -19,18 +19,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AntColony {
-    int colonySize = 20;
-    double alpha = 1;
-    double beta = 2;
-    double pheromoneAddition = 20;
-    double pheromoneEvaporationPercent = 0.02;
+    protected int colonySize = 20;
+    protected double alpha = 1;
+    protected double beta = 2;
+    protected double pheromoneAddition = 20;
+    protected double pheromoneEvaporationPercent = 0.02;
 
-    int index = 0;
+    protected int index = 0;
 
-    AntColonyGraph antColonyGraph;
+    protected List<Ant> ants;
+    protected AntColonyGraph antColonyGraph;
     AntSelectionStrategy antSelectionStrategy = new ElitistSelection();
     AntBuilder antBuilder = new SmartAntBuilder();
-    List<Ant> ants;
     CustomLogs customLogs;
 
     public AntColony(AntColonyGraph antColonyGraph) {
@@ -41,17 +41,15 @@ public abstract class AntColony {
     }
 
     public Deque<Tour> run() {
-        Deque<Tour> bestAntTour = null;
         int bestAntTourCost = Integer.MAX_VALUE;
         while (condition()) {
             runOnce();
             Ant bestAntThisIteration = getBestAntThisIteration();
             if (bestAntThisIteration.getNumberOfNotVisitedVertexes() == 0 && bestAntThisIteration.getCurrentCost() < bestAntTourCost) {
-//                bestAntTour = bestAntThisIteration.getPaths();
                 bestAntTourCost = bestAntThisIteration.getCurrentCost();
             }
         }
-        return transformTourList(bestAntTour);
+        return getBestAntThisIteration().getDequeTour();
     }
 
 
@@ -61,10 +59,9 @@ public abstract class AntColony {
         updatePheromones();
         Ant bestAntInThisIteration = getBestAntThisIteration();
         showResults(bestAntInThisIteration);
-        // return getTourFromAnt(bestAntInThisIteration);
         System.out.println(index + " The best had " + getBestAntThisIteration().getNumberOfNotVisitedVertexes() + " unsatisfied customers (average " + calculateAverageUnsatisfied() + ") with the total cost of " + getBestAntThisIteration().getCurrentCost() + "( average " + calculateAverageCost() + ")");
         index++;
-        return null;
+        return getBestAntThisIteration().getDequeTour();
     }
 
     public abstract boolean condition();
@@ -76,6 +73,12 @@ public abstract class AntColony {
     public void showResults(Ant bestAntInThisIteration) {
     }
 
+    public void evaluateAntsSync() {
+        for (int i = 0; i < ants.size(); i++) {
+            Ant ant = ants.get(i);
+            ant.run();
+        }
+    }
 
     public void evaluateAnts() {
         ExecutorService es = Executors.newCachedThreadPool();
@@ -122,12 +125,6 @@ public abstract class AntColony {
         }
     }
 
-    public void evaluateAntsSync() {
-        for (int i = 0; i < ants.size(); i++) {
-            Ant ant = ants.get(i);
-            ant.run();
-        }
-    }
 
     public abstract void initPheromones();
 

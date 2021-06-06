@@ -1,7 +1,8 @@
-package ro.uaic.info.aco.acoVariants;
+package ro.uaic.info.aco.acoVariants.masterDepot;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
-import ro.uaic.info.aco.AntColonyGraph;
+import ro.uaic.info.aco.acoVariants.AntColony;
+import ro.uaic.info.aco.graph.AntColonyGraph;
 import ro.uaic.info.aco.ant.Ant;
 import ro.uaic.info.aco.antBuilder.MdvspAntBuilder;
 import ro.uaic.info.aco.antSelection.ElitistSelection;
@@ -10,14 +11,12 @@ import ro.uaic.info.prb.Tour;
 import java.util.Deque;
 import java.util.List;
 
-public class AdaptingMMAS extends AntColony {
-    private final double minPheromone = 0.000001;
-    private final double maxPheromone = 1;
+public class MMAS extends AntColony {
     public double maxPher = 1;
     public double minPher;
     public double p_best;
 
-    public AdaptingMMAS(AntColonyGraph antColonyGraph) {
+    public MMAS(AntColonyGraph antColonyGraph) {
         super(antColonyGraph);
         this.setAntBuilder(new MdvspAntBuilder());
         this.setAntSelectionStrategy(new ElitistSelection());
@@ -26,41 +25,28 @@ public class AdaptingMMAS extends AntColony {
         this.setPheromoneEvaporationPercent(0.2);
         this.setColonySize(20);
         maxPher = 1;
-        p_best = 0.10;
+        p_best = 0.90;
         initPheromones();
     }
 
     @Override
     public Deque<Tour> runOnce() {
         Deque<Tour> res = super.runOnce();
-        updateMinMaxPher();
-
+        Ant bestAntThisIteration = getBestAntThisIteration();
+        maxPher = (1.0 / (pheromoneEvaporationPercent)) * (1.0 / bestAntThisIteration.getCurrentCost());
+        int n = bestAntThisIteration.getNumberOfDecisions();
+        double avg = bestAntThisIteration.getAvgOfNumberOfAvailablePaths();
+        double p_best_root_n = Math.pow(p_best, 1.0 / n);
+        minPher = (maxPher * (1 - p_best_root_n)) / ((avg - 1) * p_best_root_n);
+//        System.out.println(minPher);
+//        System.out.println(maxPher);
         removeUselessDepots();
         return res;
     }
 
-    public void updateMinMaxPher() {
-        Ant bestAntThisIteration = getBestAntThisIteration();
-        maxPher = (1.0 / (pheromoneEvaporationPercent)) * (1.0 / bestAntThisIteration.getCurrentCost());
-        if (minPher == 0)
-            minPher = maxPher;
-        int numberOfSimilarAnts = 0;
-        for (Ant ant :
-                ants) {
-            if (bestAntThisIteration.getCurrentCost() == ant.getCurrentCost()) {
-                numberOfSimilarAnts++;
-            }
-        }
-        if (colonySize * p_best < numberOfSimilarAnts) {
-            minPher /= (1 - pheromoneEvaporationPercent);
-        } else {
-            minPher *= (1 - pheromoneEvaporationPercent);
-        }
-    }
-
     @Override
     public boolean condition() {
-        return this.index < 10000;
+        return this.index < 100000;
     }
 
     @Override

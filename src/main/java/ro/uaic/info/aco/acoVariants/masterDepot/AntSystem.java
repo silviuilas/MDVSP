@@ -1,13 +1,15 @@
-package ro.uaic.info.aco.acoVariants;
+package ro.uaic.info.aco.acoVariants.masterDepot;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
-import ro.uaic.info.aco.AntColonyGraph;
+import ro.uaic.info.aco.acoVariants.AntColony;
+import ro.uaic.info.aco.graph.AntColonyGraph;
 import ro.uaic.info.aco.ant.Ant;
 import ro.uaic.info.aco.antBuilder.MdvspAntBuilder;
 import ro.uaic.info.aco.antSelection.ElitistSelection;
 import ro.uaic.info.prb.Tour;
 
 import java.util.Deque;
+import java.util.List;
 
 public class AntSystem extends AntColony {
     public AntSystem(AntColonyGraph antColonyGraph) {
@@ -45,18 +47,15 @@ public class AntSystem extends AntColony {
     @Override
     public void updatePheromones() {
         sortAnts();
-        int index = 1;
-        for (Ant ant : ants) {
-            for (Tour path :
-                    ant.getDequeTour()) {
-                for (int i = 1; i < path.size(); i++) {
-                    int last = path.get(i - 1);
-                    int current = path.get(i);
-                    double calculated_pheromone = antColonyGraph.getPheromone(last, current) + pheromoneAddition / index;
-                    antColonyGraph.setPheromone(last, current, calculated_pheromone);
-                }
-            }
-            index++;
+        Ant ant = ants.get(0);
+        int size = ant.getAntsVisitedPath().size();
+        List<Integer> path = ant.getAntsVisitedPath();
+        Ant bestAnt = getBestAntThisIteration();
+        for (int i = 1; i < size; i++) {
+            int source = path.get(i - 1);
+            int target = path.get(i);
+            double calculated_pheromone = antColonyGraph.getPheromone(source, target) + ((1.0 / bestAnt.getCurrentCost()));
+            antColonyGraph.setPheromone(source, target, calculated_pheromone);
         }
         pheromoneEvaporation();
     }

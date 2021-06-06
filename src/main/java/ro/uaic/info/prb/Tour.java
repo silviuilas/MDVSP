@@ -14,4 +14,9 @@ public class Tour extends ArrayList<Integer> {
         else
             return false;
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

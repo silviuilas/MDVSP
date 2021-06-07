@@ -1,7 +1,7 @@
 package ro.uaic.info.aco.acoVariants;
 
 import ro.uaic.info.aco.EvaluateOnThread;
-import ro.uaic.info.aco.graph.AntColonyGraph;
+import ro.uaic.info.aco.graph.MdvspAntColonyGraph;
 import ro.uaic.info.aco.ant.Ant;
 import ro.uaic.info.aco.antBuilder.AntBuilder;
 import ro.uaic.info.aco.antBuilder.SmartAntBuilder;
@@ -20,21 +20,19 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AntColony {
     protected int colonySize = 20;
-    protected double alpha = 1;
-    protected double beta = 2;
     protected double pheromoneAddition = 20;
     protected double pheromoneEvaporationPercent = 0.02;
 
     protected int index = 0;
 
     protected List<Ant> ants;
-    protected AntColonyGraph antColonyGraph;
+    protected MdvspAntColonyGraph mdvspAntColonyGraph;
     AntSelectionStrategy antSelectionStrategy = new ElitistSelection();
     AntBuilder antBuilder = new SmartAntBuilder();
     CustomLogs customLogs;
 
-    public AntColony(AntColonyGraph antColonyGraph) {
-        this.antColonyGraph = antColonyGraph;
+    public AntColony(MdvspAntColonyGraph mdvspAntColonyGraph) {
+        this.mdvspAntColonyGraph = mdvspAntColonyGraph;
         customLogs = new CustomLogs("");
         ants = new ArrayList<>();
         initPheromones();
@@ -103,7 +101,7 @@ public abstract class AntColony {
         if (ant.getNumberOfNotVisitedVertexes() != 0)
             return;
         Deque<Tour> tours = ant.getDequeTour();
-        int size = antColonyGraph.getM();
+        int size = mdvspAntColonyGraph.getM();
         int[] visited = new int[size];
         for (int i = 0; i < size; i++) {
             visited[i] = 0;
@@ -119,9 +117,9 @@ public abstract class AntColony {
                 System.out.println("Tour is not valid");
             }
         }
-        // System.out.println(antColonyGraph.getDepotsCapacity().toString());
+        // System.out.println(mdvspAntColonyGraph.getDepotsCapacity().toString());
         for (int i = 0; i < size; i++) {
-            antColonyGraph.getDepotsCapacity().set(i, visited[i]);
+            mdvspAntColonyGraph.getDepotsCapacity().set(i, visited[i]);
         }
     }
 
@@ -190,24 +188,8 @@ public abstract class AntColony {
         this.colonySize = colonySize;
     }
 
-    public double getAlpha() {
-        return alpha;
-    }
-
-    public void setAlpha(double alpha) {
-        this.alpha = alpha;
-    }
-
-    public double getBeta() {
-        return beta;
-    }
-
-    public void setBeta(double beta) {
-        this.beta = beta;
-    }
-
-    public AntColonyGraph getAntColonyGraph() {
-        return antColonyGraph;
+    public MdvspAntColonyGraph getMdvspAntColonyGraph() {
+        return mdvspAntColonyGraph;
     }
 
     public void setPheromoneAddition(double pheromoneAddition) {

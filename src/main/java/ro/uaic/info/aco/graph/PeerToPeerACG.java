@@ -8,18 +8,15 @@ import java.util.List;
 import java.util.Map;
 
 
-public class AntColonyGraphPeerToPeer extends AntColonyGraph {
+public class PeerToPeerACG extends MdvspAntColonyGraph {
     double[][] pheromoneTable;
-    private Map<Integer, Integer> vertexActualValue;
 
 
-    public AntColonyGraphPeerToPeer(int n, int m, int[][] cost, List<Integer> depotsCapacity) {
+    public PeerToPeerACG(int n, int m, int[][] cost, List<Integer> depotsCapacity) {
         super(n, m, cost, depotsCapacity);
-        pheromoneTable = new double[vertexSet().size()][vertexSet().size()];
     }
 
     public void init() {
-        vertexActualValue = new HashMap<>();
         //connect each depot
         for (int i = 0; i < m; i++) {
             vertexActualValue.put(i, i);
@@ -47,6 +44,7 @@ public class AntColonyGraphPeerToPeer extends AntColonyGraph {
             depotNr++;
         }
         initEdgeTypeMap();
+        super.init();
     }
 
     public void initEdgeTypeMap() {
@@ -76,7 +74,4 @@ public class AntColonyGraphPeerToPeer extends AntColonyGraph {
         return vertexActualValue;
     }
 
-    public boolean isMaster(int i) {
-        return false;
-    }
 }

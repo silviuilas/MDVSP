@@ -2,49 +2,20 @@ package ro.uaic.info.aco.ant;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 import ro.uaic.info.aco.acoVariants.AntColony;
-import ro.uaic.info.aco.graph.AntColonyGraph;
+import ro.uaic.info.aco.graph.MdvspAntColonyGraph;
 import ro.uaic.info.prb.EdgeType;
 
-public class MdvspAntMasterDepot extends SmartAnt {
-    int[] remainingDepotsNr;
-    int currentDepot;
-    int currentTourSize;
+public abstract class MdvspAntMasterDepot extends MdvspAnt {
 
-
-    public MdvspAntMasterDepot(AntColony antColony) {
-        super(antColony);
-        if (remainingDepotsNr == null) {
-            remainingDepotsNr = antColony.getAntColonyGraph().getDepotsCapacity().stream().mapToInt(i -> i).toArray();
-        }
-
-        this.addAvailableEdgesRestriction((edge) -> {
-            AntColonyGraph antColonyGraph = this.getAntColonyGraph();
-            EdgeType edgeType = antColonyGraph.getEdgeType(edge);
-            Integer target = antColonyGraph.getEdgeTarget(edge);
-            Integer source = antColonyGraph.getEdgeSource(edge);
-            if (edgeType == EdgeType.PULL_IN) {
-                if (currentDepot != target) {
-                    return true;
-                }
-            }
-            if (edgeType == EdgeType.PULL_OUT) {
-                currentTourSize = 0;
-                int remainingTrips = remainingDepotsNr[source];
-                return remainingTrips <= 0;
-            }
-            if (edgeType == EdgeType.NORMAL && currentTourSize > 6) {
-                return true;
-            }
-            return false;
-        });
+    public MdvspAntMasterDepot(MdvspAntColonyGraph mdvspAntColonyGraph) {
+        super(mdvspAntColonyGraph);
         // This is for Master Depot Design
         this.addAvailableEdgesRestriction((edge) -> {
-            AntColonyGraph antColonyGraph = this.getAntColonyGraph();
-            EdgeType edgeType = antColonyGraph.getEdgeType(edge);
-            Integer target = antColonyGraph.getEdgeTarget(edge);
-            Integer source = antColonyGraph.getEdgeSource(edge);
+            EdgeType edgeType = mdvspAntColonyGraph.getEdgeType(edge);
+            Integer target = mdvspAntColonyGraph.getEdgeTarget(edge);
+            Integer source = mdvspAntColonyGraph.getEdgeSource(edge);
             DefaultWeightedEdge lastEdge = this.getLastPickedEdge();
-            EdgeType lastPickedEdgeType = this.getAntColonyGraph().getEdgeType(lastEdge);
+            EdgeType lastPickedEdgeType = this.getMdvspAntColonyGraph().getEdgeType(lastEdge);
             // we should not go to a depot that has no more remainingDepots left
             if (edgeType == EdgeType.MASTER_PULL_OUT) {
                 int remainingTrips = remainingDepotsNr[target];
@@ -63,18 +34,5 @@ public class MdvspAntMasterDepot extends SmartAnt {
             }
             return false;
         });
-    }
-
-    @Override
-    public Integer moveOnce() {
-        int res = super.moveOnce();
-        EdgeType lastPickedEdgeType = this.getAntColonyGraph().getEdgeType(lastPickedEdge);
-        if (lastPickedEdgeType == EdgeType.PULL_OUT) {
-            currentDepot = getAntColonyGraph().getEdgeSource(lastPickedEdge);
-            currentTourSize = 0;
-            this.remainingDepotsNr[currentDepot]--;
-        }
-        currentTourSize++;
-        return res;
     }
 }

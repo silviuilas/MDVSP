@@ -1,61 +1,52 @@
 package ro.uaic.info.aco.graph;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
-import ro.uaic.info.prb.ProblemGraph;
+import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
-public abstract class AntColonyGraph extends ProblemGraph {
-    protected final int n;
-    protected final int m;
+public abstract class AntColonyGraph  extends SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> {
+    protected final int size;
     protected final int[][] cost;
     protected final int maxNr;
     protected final Map<Integer, Boolean> isVertexRepeatable = new HashMap<>();
     double[][] pheromoneTable;
-    Map<Integer, Integer> connectivityValues;
-    List<Integer> depotsCapacity;
 
-    public AntColonyGraph(int n, int m, int[][] cost, List<Integer> depotsCapacity) {
-        super(n, m, cost);
-        this.n = n;
-        this.m = m;
+    public AntColonyGraph(int size, int[][] cost) {
+        super(DefaultWeightedEdge.class);
+        this.size = size;
         this.cost = cost;
-        this.depotsCapacity = new ArrayList<>(depotsCapacity);
         maxNr = vertexSet().size();
-        init();
-        initEdgeTypeMap();
-        pheromoneTable = new double[vertexSet().size()][vertexSet().size()];
-        connectivityValues = new HashMap<>();
-        initConnectivityValues();
+        createGraph();
     }
 
-    private void initConnectivityValues() {
-        for (DefaultWeightedEdge edge :
-                this.edgeSet()) {
-            int source = this.getEdgeSource(edge);
-            connectivityValues.putIfAbsent(source, 1);
-            if (!isDepot(source)) {
-                int count = connectivityValues.get(source);
-                connectivityValues.put(source, count + 1);
+    public void createGraph() {
+
+        for (int i = 0; i < size; i++) {
+            this.addVertex(i);
+        }
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (cost[i][j] >= 0) {
+                    DefaultWeightedEdge e = this.addEdge(i, j);
+                    if (cost[i][j] == 0) {
+                        cost[i][j] = 1;
+                    }
+                    this.setEdgeWeight(e, cost[i][j]);
+                }
             }
         }
     }
 
-    public abstract void init();
+    public void init(){
+        initEdgeTypeMap();
+        pheromoneTable = new double[vertexSet().size()][vertexSet().size()];
+    }
 
     public abstract void initEdgeTypeMap();
 
-    public abstract boolean isDepot(int i);
-
-    public abstract boolean isMaster(int i);
-
-    public boolean isNormal(int i) {
-        return !isDepot(i) && !isMaster(i);
-    }
 
     public double getPheromone(int i, int j) {
         return pheromoneTable[i][j];
@@ -63,14 +54,6 @@ public abstract class AntColonyGraph extends ProblemGraph {
 
     public void setPheromone(int i, int j, double nr) {
         pheromoneTable[i][j] = nr;
-    }
-
-    public int getN() {
-        return n;
-    }
-
-    public int getM() {
-        return m;
     }
 
     public int[][] getCost() {
@@ -89,11 +72,20 @@ public abstract class AntColonyGraph extends ProblemGraph {
         return isVertexRepeatable;
     }
 
-    public List<Integer> getDepotsCapacity() {
-        return depotsCapacity;
-    }
-
-    public Map<Integer, Integer> getConnectivityValues() {
-        return connectivityValues;
+    protected void duplicateVertexEdges(Integer vertexFrom, Integer vertexTo) {
+        Set<DefaultWeightedEdge> edges = this.edgesOf(vertexFrom);
+        for (DefaultWeightedEdge edge :
+                edges) {
+            Integer source = this.getEdgeSource(edge);
+            Integer target = this.getEdgeTarget(edge);
+            if (source.equals(vertexFrom)) {
+                DefaultWeightedEdge addedEdge = this.addEdge(vertexTo, target);
+                this.setEdgeWeight(addedEdge, this.getEdgeWeight(edge));
+            } else if (target.equals(vertexFrom)) {
+                DefaultWeightedEdge addedEdge = this.addEdge(source, vertexTo);
+                this.setEdgeWeight(addedEdge, this.getEdgeWeight(edge));
+                this.addEdge(source, vertexTo);
+            }
+        }
     }
 }

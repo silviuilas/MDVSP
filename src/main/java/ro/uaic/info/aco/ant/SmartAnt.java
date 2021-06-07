@@ -2,14 +2,17 @@ package ro.uaic.info.aco.ant;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 import ro.uaic.info.aco.acoVariants.AntColony;
+import ro.uaic.info.aco.graph.MdvspAntColonyGraph;
 
 import java.util.List;
 import java.util.Random;
 
-public class SmartAnt extends Ant {
+public class SmartAnt extends MdvspAntPeerToPeer {
+    double alpha = 1;
+    double beta = 2;
 
-    public SmartAnt(AntColony antColony) {
-        super(antColony);
+    public SmartAnt(MdvspAntColonyGraph mdvspAntColonyGraph) {
+        super(mdvspAntColonyGraph);
         currentLocation = 0;
     }
 
@@ -20,15 +23,15 @@ public class SmartAnt extends Ant {
         int index = 0;
         for (DefaultWeightedEdge edge :
                 availableEdges) {
-            int source = antColonyGraph.getEdgeSource(edge);
-            int target = antColonyGraph.getEdgeTarget(edge);
-            double pheromone = antColony.getAntColonyGraph().getPheromone(source, target);
-            double distance = antColonyGraph.getEdgeWeight(edge);
+            int source = mdvspAntColonyGraph.getEdgeSource(edge);
+            int target = mdvspAntColonyGraph.getEdgeTarget(edge);
+            double pheromone = mdvspAntColonyGraph.getPheromone(source, target);
+            double distance = mdvspAntColonyGraph.getEdgeWeight(edge);
             if (distance < 1)
                 distance = 1;
-            double intensity = Math.pow(pheromone, antColony.getAlpha());
-            int connectivity = this.antColonyGraph.getConnectivityValues().get(target);
-            double relevance = Math.pow(((1 / distance)) * connectivity, antColony.getBeta());
+            double intensity = Math.pow(pheromone, alpha);
+            int connectivity = this.mdvspAntColonyGraph.getConnectivityValues().get(target);
+            double relevance = Math.pow(((1 / distance)) * connectivity, beta);
             double desirability = intensity * relevance;
             sum = sum + (desirability);
             select[index] = sum;

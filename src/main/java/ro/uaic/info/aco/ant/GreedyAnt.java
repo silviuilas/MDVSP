@@ -2,17 +2,18 @@ package ro.uaic.info.aco.ant;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 import ro.uaic.info.aco.acoVariants.AntColony;
+import ro.uaic.info.aco.graph.MdvspAntColonyGraph;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class GreedyAnt extends Ant {
+public class GreedyAnt extends MdvspAntMasterDepot {
 
-    public GreedyAnt(AntColony antColony) {
-        super(antColony);
+    public GreedyAnt(MdvspAntColonyGraph mdvspAntColonyGraph) {
+        super(mdvspAntColonyGraph);
         Random random = new Random();
-        currentLocation = random.nextInt(antColonyGraph.getM());
+        currentLocation = random.nextInt(mdvspAntColonyGraph.getM());
     }
 
     @Override
@@ -27,12 +28,12 @@ public class GreedyAnt extends Ant {
 
 
     public DefaultWeightedEdge getShortestPath(List<DefaultWeightedEdge> edges) {
-        edges.sort((t1, t2) -> (int) (antColonyGraph.getEdgeWeight(t1) - antColonyGraph.getEdgeWeight(t2)));
+        edges.sort((t1, t2) -> (int) (mdvspAntColonyGraph.getEdgeWeight(t1) - mdvspAntColonyGraph.getEdgeWeight(t2)));
 
         for (DefaultWeightedEdge edge :
                 edges) {
-            Integer target = antColonyGraph.getEdgeTarget(edge);
-            if (!antColonyGraph.isDepot(target) && !antColonyGraph.isMaster(target)) {
+            Integer target = mdvspAntColonyGraph.getEdgeTarget(edge);
+            if (!mdvspAntColonyGraph.isDepot(target)) {
                 return edge;
             }
         }

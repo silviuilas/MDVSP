@@ -1,10 +1,12 @@
 package ro.uaic.info.solver;
 
-import ro.uaic.info.aco.graph.AntColonyGraph;
-import ro.uaic.info.aco.acoVariants.masterDepot.AdaptingMMAS;
+import ro.uaic.info.aco.acoVariants.AntSystem;
+import ro.uaic.info.aco.acoVariants.MMAS;
+import ro.uaic.info.aco.graph.MasterDepotACG;
+import ro.uaic.info.aco.graph.MdvspAntColonyGraph;
+import ro.uaic.info.aco.acoVariants.AdaptingMMAS;
 import ro.uaic.info.aco.acoVariants.AntColony;
-import ro.uaic.info.aco.graph.AntColonyGraphMasterDepot;
-import ro.uaic.info.aco.graph.AntColonyGraphPeerToPeer;
+import ro.uaic.info.aco.graph.PeerToPeerACG;
 import ro.uaic.info.prb.ProblemIO;
 import ro.uaic.info.prb.Tour;
 
@@ -12,15 +14,16 @@ import java.util.Deque;
 
 public class AcoSolver implements Solver {
     ProblemIO problemIO;
-    AntColonyGraph antColonyGraph;
+    MdvspAntColonyGraph mdvspAntColonyGraph;
     AntColony antColony;
 
 
     @Override
     public void init(ProblemIO problemIO) {
         this.problemIO = problemIO;
-        antColonyGraph = new AntColonyGraphMasterDepot(problemIO.getN(), problemIO.getM(), problemIO.getCost(), problemIO.getDepotsCapacity());
-        antColony = new AdaptingMMAS(antColonyGraph);
+        mdvspAntColonyGraph = new PeerToPeerACG(problemIO.getN(), problemIO.getM(), problemIO.getCost(), problemIO.getDepotsCapacity());
+        mdvspAntColonyGraph.init();
+        antColony = new AdaptingMMAS(mdvspAntColonyGraph);
     }
 
     @Override

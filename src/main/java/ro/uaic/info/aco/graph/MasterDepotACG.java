@@ -6,11 +6,11 @@ import ro.uaic.info.prb.EdgeType;
 import java.util.List;
 
 
-public class AntColonyGraphMasterDepot extends AntColonyGraph {
+public class MasterDepotACG extends MdvspAntColonyGraph {
     double[][] pheromoneTable;
     List<Integer> depotsCapacity;
 
-    public AntColonyGraphMasterDepot(int n, int m, int[][] cost, List<Integer> depotsCapacity) {
+    public MasterDepotACG(int n, int m, int[][] cost, List<Integer> depotsCapacity) {
         super(n, m, cost, depotsCapacity);
         pheromoneTable = new double[vertexSet().size()][vertexSet().size()];
     }
@@ -27,9 +27,11 @@ public class AntColonyGraphMasterDepot extends AntColonyGraph {
                 this.setEdgeWeight(vertex, val, 0);
                 this.setEdgeWeight(val, vertex, 0);
                 this.isVertexRepeatable.put(val, true);
+                vertexActualValue.put(val, val);
             }
         }
         initEdgeTypeMap();
+        super.init();
     }
 
     public void initEdgeTypeMap() {

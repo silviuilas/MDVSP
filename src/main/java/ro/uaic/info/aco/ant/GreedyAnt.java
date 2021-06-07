@@ -28,12 +28,12 @@ public class GreedyAnt extends MdvspAntMasterDepot {
 
 
     public DefaultWeightedEdge getShortestPath(List<DefaultWeightedEdge> edges) {
-        edges.sort((t1, t2) -> (int) (mdvspAntColonyGraph.getEdgeWeight(t1) - mdvspAntColonyGraph.getEdgeWeight(t2)));
+        edges.sort((t1, t2) -> (int) (getMdvspAntColonyGraph().getEdgeWeight(t1) - getMdvspAntColonyGraph().getEdgeWeight(t2)));
 
         for (DefaultWeightedEdge edge :
                 edges) {
-            Integer target = mdvspAntColonyGraph.getEdgeTarget(edge);
-            if (!mdvspAntColonyGraph.isDepot(target)) {
+            Integer target = getMdvspAntColonyGraph().getEdgeTarget(edge);
+            if (!getMdvspAntColonyGraph().isDepot(target)) {
                 return edge;
             }
         }

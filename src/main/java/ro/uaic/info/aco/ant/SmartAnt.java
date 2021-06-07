@@ -23,14 +23,14 @@ public class SmartAnt extends MdvspAntPeerToPeer {
         int index = 0;
         for (DefaultWeightedEdge edge :
                 availableEdges) {
-            int source = mdvspAntColonyGraph.getEdgeSource(edge);
-            int target = mdvspAntColonyGraph.getEdgeTarget(edge);
-            double pheromone = mdvspAntColonyGraph.getPheromone(source, target);
-            double distance = mdvspAntColonyGraph.getEdgeWeight(edge);
+            int source = getMdvspAntColonyGraph().getEdgeSource(edge);
+            int target = getMdvspAntColonyGraph().getEdgeTarget(edge);
+            double pheromone = getMdvspAntColonyGraph().getPheromone(source, target);
+            double distance = getMdvspAntColonyGraph().getEdgeWeight(edge);
             if (distance < 1)
                 distance = 1;
             double intensity = Math.pow(pheromone, alpha);
-            int connectivity = this.mdvspAntColonyGraph.getConnectivityValues().get(target);
+            int connectivity = this.getMdvspAntColonyGraph().getConnectivityValues().get(target);
             double relevance = Math.pow(((1 / distance)) * connectivity, beta);
             double desirability = intensity * relevance;
             sum = sum + (desirability);
@@ -42,6 +42,12 @@ public class SmartAnt extends MdvspAntPeerToPeer {
 
         // assert(binary_search(select, 0, availableEdges.size(), toFind) == normal_search(select, 0, availableEdges.size(), toFind));
         int selected = binary_search(select, 0, availableEdges.size(), toFind);
+//        DefaultWeightedEdge edge = availableEdges.get(selected);
+//        int target = getMdvspAntColonyGraph().getEdgeTarget(edge);
+//        int connectivity = this.getMdvspAntColonyGraph().getConnectivityValues().get(target);
+//        System.out.println(edge);
+//        System.out.println(getMdvspAntColonyGraph().getEdgeType(edge));
+//        System.out.println(connectivity);
         return availableEdges.get(selected);
     }
 

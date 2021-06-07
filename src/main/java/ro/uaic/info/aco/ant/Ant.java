@@ -3,29 +3,28 @@ package ro.uaic.info.aco.ant;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import ro.uaic.info.aco.AvailableEdgeRestriction;
 import ro.uaic.info.aco.acoVariants.AntColony;
-import ro.uaic.info.aco.graph.MdvspAntColonyGraph;
-import ro.uaic.info.prb.EdgeType;
+import ro.uaic.info.aco.graph.AntColonyGraph;
 import ro.uaic.info.prb.Tour;
 
 import java.util.*;
 
 public abstract class Ant {
     protected final Map<Integer, Integer> timesNodesWhereVisited = new HashMap<>();
+    protected final List<Integer> antsVisitedPath = new ArrayList<>();
+    protected final List<DefaultWeightedEdge> antsVisitedPathEdges = new ArrayList<>();
     private final List<AvailableEdgeRestriction> availableEdgeRestrictions = new ArrayList<>();
-    private final List<Integer> antsVisitedPath = new ArrayList<>();
-    private final List<DefaultWeightedEdge> antsVisitedPathEdges = new ArrayList<>();
     protected AntColony antColony;
     protected int currentLocation = 0;
     protected DefaultWeightedEdge lastPickedEdge;
-    MdvspAntColonyGraph mdvspAntColonyGraph;
+    AntColonyGraph antColonyGraph;
     int numberOfDecisions = 0;
     int sumOfNumberOfAvailablePaths = 0;
     private List<DefaultWeightedEdge> availableEdgesCache;
     private boolean isAvailableEdgesCacheValid = false;
     private int currentCost = 0;
 
-    public Ant(MdvspAntColonyGraph mdvspAntColonyGraph) {
-        this.mdvspAntColonyGraph = mdvspAntColonyGraph;
+    public Ant(AntColonyGraph antColonyGraph) {
+        this.antColonyGraph = antColonyGraph;
     }
 
     public void run() {
@@ -53,12 +52,12 @@ public abstract class Ant {
         if (isAvailableEdgesCacheValid) {
             return availableEdgesCache;
         }
-        Set<DefaultWeightedEdge> edges = mdvspAntColonyGraph.outgoingEdgesOf(position);
-        List<DefaultWeightedEdge> availableEdges = new ArrayList<>(mdvspAntColonyGraph.outgoingEdgesOf(position));
+        Set<DefaultWeightedEdge> edges = antColonyGraph.outgoingEdgesOf(position);
+        List<DefaultWeightedEdge> availableEdges = new ArrayList<>(antColonyGraph.outgoingEdgesOf(position));
         for (DefaultWeightedEdge edge :
                 edges) {
-            Integer target = mdvspAntColonyGraph.getEdgeTarget(edge);
-            if ((timesNodesWhereVisited.get(target) != null) && mdvspAntColonyGraph.getIsVertexRepeatable().get(target) == null) {
+            Integer target = antColonyGraph.getEdgeTarget(edge);
+            if ((timesNodesWhereVisited.get(target) != null) && antColonyGraph.getIsVertexRepeatable().get(target) == null) {
                 availableEdges.remove(edge);
             } else {
                 for (AvailableEdgeRestriction availableEdgeRestriction :
@@ -79,15 +78,15 @@ public abstract class Ant {
     }
 
     public Integer goToNextPosition(DefaultWeightedEdge e) {
-        Integer source = mdvspAntColonyGraph.getEdgeSource(e);
-        Integer target = mdvspAntColonyGraph.getEdgeTarget(e);
+        Integer source = antColonyGraph.getEdgeSource(e);
+        Integer target = antColonyGraph.getEdgeTarget(e);
         antsVisitedPath.add(target);
         antsVisitedPathEdges.add(e);
         timesNodesWhereVisited.putIfAbsent(source, 0);
         int nr = timesNodesWhereVisited.get(source);
         timesNodesWhereVisited.put(source, nr + 1);
         currentLocation = target;
-        currentCost += mdvspAntColonyGraph.getEdgeWeight(e);
+        currentCost += antColonyGraph.getEdgeWeight(e);
         // System.out.println("remaining to visit " + getNumberOfNotVisitedVertexes() + " from " + source + " visited " + target);
 
         return currentLocation;
@@ -96,8 +95,10 @@ public abstract class Ant {
     public abstract DefaultWeightedEdge pickAnEdge(List<DefaultWeightedEdge> availableEdges);
 
     public int getNumberOfNotVisitedVertexes() {
-        return ((mdvspAntColonyGraph.vertexSet().size()) - timesNodesWhereVisited.size());
+        return ((antColonyGraph.vertexSet().size()) - timesNodesWhereVisited.size());
     }
+
+    public abstract Deque<Tour> getDequeTour();
 
     public boolean isValid() {
         try {
@@ -106,37 +107,6 @@ public abstract class Ant {
             e.printStackTrace();
             return false;
         }
-    }
-
-    public Deque<Tour> getDequeTour() {
-        Deque<Tour> deque = new ArrayDeque<>();
-        Tour tour = null;
-        for (DefaultWeightedEdge edge :
-                antsVisitedPathEdges) {
-            EdgeType edgeType = mdvspAntColonyGraph.getEdgeType(edge);
-            // TODO make it work for master depot
-            Integer source = mdvspAntColonyGraph.getEdgeSource(edge);
-            Integer target = mdvspAntColonyGraph.getEdgeTarget(edge);
-//            Integer source1 = ((PeerToPeerACG) mdvspAntColonyGraph).getVertexActualValue().get(source);
-//            if(source1 != null)
-//                source = source1;
-//            Integer target1 = ((PeerToPeerACG) mdvspAntColonyGraph).getVertexActualValue().get(target);
-//            if(target1 != null)
-//                target = target1;
-            if (edgeType == EdgeType.PULL_OUT) {
-                tour = new Tour();
-                tour.add(source);
-                tour.add(target);
-            } else if (edgeType == EdgeType.PULL_IN) {
-                assert (tour != null);
-                tour.add(target);
-                deque.add(tour);
-            } else if (edgeType == EdgeType.NORMAL) {
-                assert (tour != null);
-                tour.add(target);
-            }
-        }
-        return deque;
     }
 
 
@@ -164,8 +134,8 @@ public abstract class Ant {
         return lastPickedEdge;
     }
 
-    public MdvspAntColonyGraph getMdvspAntColonyGraph() {
-        return mdvspAntColonyGraph;
+    public AntColonyGraph getAntColonyGraph() {
+        return antColonyGraph;
     }
 
     public List<Integer> getAntsVisitedPath() {

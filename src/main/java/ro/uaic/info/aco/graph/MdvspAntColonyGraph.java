@@ -37,8 +37,9 @@ public abstract class MdvspAntColonyGraph extends AntColonyGraph {
         for (DefaultWeightedEdge edge :
                 this.edgeSet()) {
             int source = this.getEdgeSource(edge);
+            int target = this.getEdgeTarget(edge);
             connectivityValues.putIfAbsent(source, 1);
-            if (!isDepot(source)) {
+            if (!isDepot(source) && !isDepot(target)) {
                 int count = connectivityValues.get(source);
                 connectivityValues.put(source, count + 1);
             }

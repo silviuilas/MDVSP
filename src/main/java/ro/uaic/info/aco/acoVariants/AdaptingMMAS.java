@@ -24,7 +24,7 @@ public class AdaptingMMAS extends AntColony {
         this.setPheromoneEvaporationPercent(0.2);
         this.setColonySize(20);
         maxPher = 1;
-        threshold = 0.7;
+        threshold = 0.6;
         initPheromones();
     }
 
@@ -100,7 +100,7 @@ public class AdaptingMMAS extends AntColony {
 
     @Override
     public boolean condition() {
-        return this.index < 10000;
+        return this.index < 1000;
     }
 
     @Override

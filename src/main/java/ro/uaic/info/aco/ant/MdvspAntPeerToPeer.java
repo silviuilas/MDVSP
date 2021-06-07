@@ -30,6 +30,12 @@ public abstract class MdvspAntPeerToPeer extends MdvspAnt {
                     return true;
                 }
             }
+            if(edgeType == EdgeType.DEPOT_DEPOT){
+                if(lastPickedEdgeType != EdgeType.PULL_IN){
+                    return true;
+                }
+            }
+            // after you pulled in you should relocate to a depot that you have not been visiting
             if(lastPickedEdgeType == EdgeType.PULL_IN){
                 if(edgeType != EdgeType.DEPOT_DEPOT){
                     return true;
@@ -45,8 +51,8 @@ public abstract class MdvspAntPeerToPeer extends MdvspAnt {
 
     @Override
     public int getNumberOfNotVisitedVertexes() {
-        int start = this.mdvspAntColonyGraph.getM();
-        int size = this.mdvspAntColonyGraph.getN();
+        int start = this.getMdvspAntColonyGraph().getM();
+        int size = this.getMdvspAntColonyGraph().getN();
         int nr = 0;
         for (int i = start; i < start + size; i++) {
             if (this.timesNodesWhereVisited.get(i) == null) {

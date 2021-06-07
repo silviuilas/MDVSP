@@ -119,12 +119,12 @@ public abstract class Ant {
             // TODO make it work for master depot
             Integer source = antColonyGraph.getEdgeSource(edge);
             Integer target = antColonyGraph.getEdgeTarget(edge);
-            Integer source1 = ((AntColonyGraphPeerToPeer) antColonyGraph).getVertexActualValue().get(source);
-            if(source1 != null)
-                source = source1;
-            Integer target1 = ((AntColonyGraphPeerToPeer) antColonyGraph).getVertexActualValue().get(target);
-            if(target1 != null)
-                target = target1;
+//            Integer source1 = ((AntColonyGraphPeerToPeer) antColonyGraph).getVertexActualValue().get(source);
+//            if(source1 != null)
+//                source = source1;
+//            Integer target1 = ((AntColonyGraphPeerToPeer) antColonyGraph).getVertexActualValue().get(target);
+//            if(target1 != null)
+//                target = target1;
             if (edgeType == EdgeType.PULL_OUT) {
                 tour = new Tour();
                 tour.add(source);

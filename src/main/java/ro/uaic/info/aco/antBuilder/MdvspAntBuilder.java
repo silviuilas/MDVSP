@@ -8,6 +8,6 @@ import ro.uaic.info.aco.ant.MdvspAntPeerToPeer;
 public class MdvspAntBuilder implements AntBuilder {
     @Override
     public Ant generateAnt(AntColony antColony) {
-        return new MdvspAntPeerToPeer(antColony);
+        return new MdvspAntMasterDepot(antColony);
     }
 }

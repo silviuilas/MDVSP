@@ -8,13 +8,13 @@ import ro.uaic.info.aco.antBuilder.MdvspAntBuilder;
 import ro.uaic.info.aco.antSelection.ElitistSelection;
 import ro.uaic.info.prb.Tour;
 
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 public class AdaptingMMAS extends AntColony {
     public double maxPher = 1;
     public double minPher;
-    public double p_best;
+    public double threshold;
+    int index = 0;
 
     public AdaptingMMAS(AntColonyGraph antColonyGraph) {
         super(antColonyGraph);
@@ -25,7 +25,7 @@ public class AdaptingMMAS extends AntColony {
         this.setPheromoneEvaporationPercent(0.2);
         this.setColonySize(20);
         maxPher = 1;
-        p_best = 0.10;
+        threshold = 0.60;
         initPheromones();
     }
 
@@ -33,8 +33,12 @@ public class AdaptingMMAS extends AntColony {
     public Deque<Tour> runOnce() {
         Deque<Tour> res = super.runOnce();
         updateMinMaxPher();
-
-        removeUselessDepots();
+        index ++;
+        if(index%1000 ==0) {
+            initPheromones();
+            minPher = maxPher;
+        }
+        // removeUselessDepots();
         return res;
     }
 
@@ -43,6 +47,15 @@ public class AdaptingMMAS extends AntColony {
         maxPher = (1.0 / (pheromoneEvaporationPercent)) * (1.0 / bestAntThisIteration.getCurrentCost());
         if (minPher == 0)
             minPher = maxPher;
+        if (areTheSolutionsAlikeHash(threshold)) {
+            minPher *= (1 - pheromoneEvaporationPercent);
+        } else {
+            minPher /= (1 - pheromoneEvaporationPercent);
+        }
+    }
+
+    public boolean areTheSolutionsAlike(double threshold) {
+        Ant bestAntThisIteration = getBestAntThisIteration();
         int numberOfSimilarAnts = 0;
         for (Ant ant :
                 ants) {
@@ -50,16 +63,44 @@ public class AdaptingMMAS extends AntColony {
                 numberOfSimilarAnts++;
             }
         }
-        if (colonySize * p_best < numberOfSimilarAnts) {
-            minPher /= (1 - pheromoneEvaporationPercent);
-        } else {
-            minPher *= (1 - pheromoneEvaporationPercent);
-        }
+        return colonySize * threshold >= numberOfSimilarAnts;
     }
+
+    public boolean areTheSolutionsAlikeHash(double threshold) {
+        Ant bestAntThisIteration = getBestAntThisIteration();
+        Map<Long, Boolean> booleanMap = new HashMap<>();
+        Queue<Integer> toRemove = new LinkedList<>();
+        for (Tour tour :
+                bestAntThisIteration.getDequeTour()) {
+            long hashSum = tour.hashCode();
+            booleanMap.put(hashSum, true);
+        }
+        int sameHashSum = 0;
+        int iSum = 0;
+        for (Ant ant :
+                ants) {
+            int sameHash = 0;
+            int i = 0;
+            for (Tour tour :
+                    ant.getDequeTour()) {
+                long hashSum = tour.hashCode();
+                if (booleanMap.get(hashSum) != null && booleanMap.get(hashSum)) {
+                    sameHash++;
+                }
+                i++;
+            }
+            sameHashSum += sameHash;
+            iSum += (i);
+        }
+        double avg = ((double) sameHashSum / (double) iSum);
+        System.out.println(avg + "  " + minPher);
+        return avg <= threshold;
+    }
+
 
     @Override
     public boolean condition() {
-        return this.index < 10000;
+        return this.index < 1000000;
     }
 
     @Override

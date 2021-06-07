@@ -1,8 +1,9 @@
 package ro.uaic.info.solver;
 
 import ro.uaic.info.aco.graph.AntColonyGraph;
-import ro.uaic.info.aco.acoVariants.peerToPeer.AdaptingMMAS;
+import ro.uaic.info.aco.acoVariants.masterDepot.AdaptingMMAS;
 import ro.uaic.info.aco.acoVariants.AntColony;
+import ro.uaic.info.aco.graph.AntColonyGraphMasterDepot;
 import ro.uaic.info.aco.graph.AntColonyGraphPeerToPeer;
 import ro.uaic.info.prb.ProblemIO;
 import ro.uaic.info.prb.Tour;
@@ -18,7 +19,7 @@ public class AcoSolver implements Solver {
     @Override
     public void init(ProblemIO problemIO) {
         this.problemIO = problemIO;
-        antColonyGraph = new AntColonyGraphPeerToPeer(problemIO.getN(), problemIO.getM(), problemIO.getCost(), problemIO.getDepotsCapacity());
+        antColonyGraph = new AntColonyGraphMasterDepot(problemIO.getN(), problemIO.getM(), problemIO.getCost(), problemIO.getDepotsCapacity());
         antColony = new AdaptingMMAS(antColonyGraph);
     }
 

@@ -33,7 +33,7 @@ public class AdaptingMMAS extends AntColony {
         Deque<Tour> res = super.runOnce();
         updateMinMaxPher();
         index ++;
-        if(index%500 ==0) {
+        if(index%1000 ==0) {
             initPheromones();
             minPher = maxPher;
         }
@@ -100,7 +100,7 @@ public class AdaptingMMAS extends AntColony {
 
     @Override
     public boolean condition() {
-        return this.index < 1000;
+        return this.index < 100;
     }
 
     @Override

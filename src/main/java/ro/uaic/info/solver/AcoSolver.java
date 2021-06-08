@@ -21,7 +21,7 @@ public class AcoSolver implements Solver {
     @Override
     public void init(ProblemIO problemIO) {
         this.problemIO = problemIO;
-        mdvspAntColonyGraph = new PeerToPeerACG(problemIO.getN(), problemIO.getM(), problemIO.getCost(), problemIO.getDepotsCapacity());
+        mdvspAntColonyGraph = new MasterDepotACG(problemIO.getN(), problemIO.getM(), problemIO.getCost(), problemIO.getDepotsCapacity());
         mdvspAntColonyGraph.init();
         antColony = new AdaptingMMAS(mdvspAntColonyGraph);
     }

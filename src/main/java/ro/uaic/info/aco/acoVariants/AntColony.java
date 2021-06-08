@@ -57,6 +57,7 @@ public abstract class AntColony {
         updatePheromones();
         Ant bestAntInThisIteration = getBestAntThisIteration();
         showResults(bestAntInThisIteration);
+        customLogs.addToValue(String.valueOf(index), String.valueOf(bestAntInThisIteration.getNumberOfNotVisitedVertexes()), String.valueOf(getBestAntThisIteration().getCurrentCost()), calculateAverageUnsatisfied(), calculateAverageCost());
         System.out.println(index + " The best had " + getBestAntThisIteration().getNumberOfNotVisitedVertexes() + " unsatisfied customers (average " + calculateAverageUnsatisfied() + ") with the total cost of " + getBestAntThisIteration().getCurrentCost() + "( average " + calculateAverageCost() + ")");
         index++;
         return getBestAntThisIteration().getDequeTour();

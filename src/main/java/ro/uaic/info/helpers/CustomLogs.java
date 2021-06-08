@@ -19,6 +19,13 @@ public class CustomLogs {
         }
     }
 
+    public void addToValue(String... params) {
+        for (String s : params) {
+            values = values + s + ",";
+        }
+        values += '\n';
+    }
+
     public void addToValue(String valueToAdd) {
         values = values + valueToAdd;
     }

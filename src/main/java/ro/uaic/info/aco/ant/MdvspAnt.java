@@ -24,11 +24,13 @@ public abstract class MdvspAnt extends Ant {
             EdgeType edgeType = mdvspAntColonyGraph.getEdgeType(edge);
             Integer target = mdvspAntColonyGraph.getEdgeTarget(edge);
             Integer source = mdvspAntColonyGraph.getEdgeSource(edge);
+            // can't pull in a different depot then the one you started at
             if (edgeType == EdgeType.PULL_IN) {
                 if (currentDepot != target) {
                     return true;
                 }
             }
+            // don't pull pull out a depot if you don't have enough vehicles
             if (edgeType == EdgeType.PULL_OUT) {
                 currentTourSize = 0;
                 int actualValue = mdvspAntColonyGraph.getVertexActualValue().get(source);

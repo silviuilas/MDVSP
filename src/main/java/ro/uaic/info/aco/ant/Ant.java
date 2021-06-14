@@ -53,7 +53,7 @@ public abstract class Ant {
             return availableEdgesCache;
         }
         Set<DefaultWeightedEdge> edges = antColonyGraph.outgoingEdgesOf(position);
-        List<DefaultWeightedEdge> availableEdges = new ArrayList<>(antColonyGraph.outgoingEdgesOf(position));
+        List<DefaultWeightedEdge> availableEdges = new ArrayList<>(edges);
         for (DefaultWeightedEdge edge :
                 edges) {
             Integer target = antColonyGraph.getEdgeTarget(edge);

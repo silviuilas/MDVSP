@@ -39,15 +39,15 @@ public abstract class AntColony {
     }
 
     public Deque<Tour> run() {
-        int bestAntTourCost = Integer.MAX_VALUE;
+        Ant bestAntSoFar = null;
         while (condition()) {
             runOnce();
             Ant bestAntThisIteration = getBestAntThisIteration();
-            if (bestAntThisIteration.getNumberOfNotVisitedVertexes() == 0 && bestAntThisIteration.getCurrentCost() < bestAntTourCost) {
-                bestAntTourCost = bestAntThisIteration.getCurrentCost();
+            if (isFirstAntBetter(bestAntThisIteration, bestAntSoFar)) {
+                bestAntSoFar = bestAntThisIteration;
             }
         }
-        return getBestAntThisIteration().getDequeTour();
+        return bestAntSoFar.getDequeTour();
     }
 
 
@@ -55,12 +55,14 @@ public abstract class AntColony {
         generateAnts();
         evaluateAnts();
         updatePheromones();
-        Ant bestAntInThisIteration = getBestAntThisIteration();
-        showResults(bestAntInThisIteration);
-        customLogs.addToValue(String.valueOf(index), String.valueOf(bestAntInThisIteration.getNumberOfNotVisitedVertexes()), String.valueOf(getBestAntThisIteration().getCurrentCost()), calculateAverageUnsatisfied(), calculateAverageCost());
-        System.out.println(index + " The best had " + getBestAntThisIteration().getNumberOfNotVisitedVertexes() + " unsatisfied customers (average " + calculateAverageUnsatisfied() + ") with the total cost of " + getBestAntThisIteration().getCurrentCost() + "( average " + calculateAverageCost() + ")");
+        showResults();
         index++;
         return getBestAntThisIteration().getDequeTour();
+    }
+
+    public boolean isFirstAntBetter(Ant ant1, Ant ant2) {
+        return ant1.getNumberOfNotVisitedVertexes() == 0 &&
+                (ant2 == null || ant1.getCurrentCost() < ant2.getCurrentCost());
     }
 
     public abstract boolean condition();
@@ -69,7 +71,10 @@ public abstract class AntColony {
         ants = antSelectionStrategy.generateAnts(ants, this, antBuilder);
     }
 
-    public void showResults(Ant bestAntInThisIteration) {
+    public void showResults() {
+        Ant bestAntInThisIteration = getBestAntThisIteration();
+        customLogs.addToValue(String.valueOf(index), String.valueOf(bestAntInThisIteration.getNumberOfNotVisitedVertexes()), String.valueOf(getBestAntThisIteration().getCurrentCost()), calculateAverageUnsatisfied(), calculateAverageCost());
+        System.out.println(index + " The best had " + getBestAntThisIteration().getNumberOfNotVisitedVertexes() + " unsatisfied customers (average " + calculateAverageUnsatisfied() + ") with the total cost of " + getBestAntThisIteration().getCurrentCost() + "( average " + calculateAverageCost() + ")");
     }
 
     public void evaluateAntsSync() {

@@ -15,7 +15,6 @@ public class AdaptingMMAS extends AntColony {
     public double maxPher = 1;
     public double minPher;
     public double threshold;
-    int index = 0;
 
     public AdaptingMMAS(MdvspAntColonyGraph mdvspAntColonyGraph) {
         super(mdvspAntColonyGraph);
@@ -32,7 +31,6 @@ public class AdaptingMMAS extends AntColony {
     public Deque<Tour> runOnce() {
         Deque<Tour> res = super.runOnce();
         updateMinMaxPher();
-        index ++;
         if(index%1000 ==0) {
             initPheromones();
             minPher = maxPher;

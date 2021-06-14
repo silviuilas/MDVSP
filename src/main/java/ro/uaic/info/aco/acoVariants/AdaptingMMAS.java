@@ -35,7 +35,7 @@ public class AdaptingMMAS extends AntColony {
             initPheromones();
             minPher = maxPher;
         }
-        System.out.println("Avg number of paths " + getBestAntThisIteration().getAvgOfNumberOfAvailablePaths() + " w number of decizions " + getBestAntThisIteration().getNumberOfDecisions());
+        // System.out.println("Avg number of paths " + getBestAntThisIteration().getAvgOfNumberOfAvailablePaths() + " w number of decizions " + getBestAntThisIteration().getNumberOfDecisions());
         // removeUselessDepots();
         return res;
     }

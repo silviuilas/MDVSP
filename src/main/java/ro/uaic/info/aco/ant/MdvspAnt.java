@@ -91,4 +91,21 @@ public abstract class MdvspAnt extends Ant {
         }
         return deque;
     }
+
+    @Override
+    public int getNumberOfNotVisitedVertexes() {
+        int start = this.getMdvspAntColonyGraph().getM();
+        int size = this.getMdvspAntColonyGraph().getN();
+        int nr = 0;
+        for (int i = start; i < start + size; i++) {
+            if (this.timesNodesWhereVisited.get(i) == null) {
+                nr++;
+                continue;
+            }
+            if (this.timesNodesWhereVisited.get(i) == 0) {
+                nr++;
+            }
+        }
+        return nr;
+    }
 }

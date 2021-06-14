@@ -12,27 +12,29 @@ import java.io.IOException;
 
 public class App {
     public static void main(String[] args) throws IOException {
-//        AcoGraphGen randomGraphGen = new AcoGraphGen(5, 50, new int[]{15, 15, 15, 15, 15}, 1000, 1000);
-//        RenderGraph renderGraph = new RenderGraph(randomGraphGen.getGraph());
-//
-//        ProblemIO problemIO = new ProblemIO();
-//        problemIO.populate(randomGraphGen.getFile());
-//        AcoSolver solver = new AcoSolver();
-//        solver.init(problemIO);
-//        Problem problem = new Problem(problemIO, solver);
-//        Algorithm algorithm = new AcoAlgorithm(problem);
-//        algorithm.init(renderGraph.getGraph());
-//        algorithm.compute();
-
+        int numberOfDepots = 5;
+        int numberOfCustomers = 25;
+        AcoGraphGen randomGraphGen = new AcoGraphGen(numberOfDepots, numberOfCustomers, new int[]{15, 15, 15, 15, 15}, 1000, 1000);
+        RenderGraph renderGraph = new RenderGraph(randomGraphGen.getGraph());
 
         ProblemIO problemIO = new ProblemIO();
-        problemIO.read("src/main/java/ro/uaic/info/Dataset/Mdvsp_4dep_500trips/m4n500s0.inp");
-        //problemIO.read("src/main/java/ro/uaic/info/generator/MDVSP-data/m4n200s0.inp");
-        Solver solver = new AcoSolver();
+        problemIO.populate(randomGraphGen.getFile());
+        AcoSolver solver = new AcoSolver();
+        solver.init(problemIO);
         Problem problem = new Problem(problemIO, solver);
-        for (int i = 0; i < 30; i++) {
-            problem.run();
-            solver.saveLogs("run" + i);
-        }
+        Algorithm algorithm = new AcoAlgorithm(problem);
+        algorithm.init(renderGraph.getGraph());
+        algorithm.compute();
+
+
+//        ProblemIO problemIO = new ProblemIO();
+//        problemIO.read("src/main/java/ro/uaic/info/Dataset/Mdvsp_4dep_500trips/m4n500s0.inp");
+//        //problemIO.read("src/main/java/ro/uaic/info/generator/MDVSP-data/m4n200s0.inp");
+//        Solver solver = new AcoSolver();
+//        Problem problem = new Problem(problemIO, solver);
+//        for (int i = 0; i < 30; i++) {
+//            problem.run();
+//            solver.saveLogs("run" + i);
+//        }
     }
 }

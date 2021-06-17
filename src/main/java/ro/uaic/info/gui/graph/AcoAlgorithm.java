@@ -1,4 +1,4 @@
-package ro.uaic.info.graph;
+package ro.uaic.info.gui.graph;
 
 import org.graphstream.algorithm.Algorithm;
 import org.graphstream.graph.Graph;

@@ -1,8 +1,0 @@
-node {
-    fill-mode: dyn-plain;
-}
-
-node.depot {
-    fill-color: green;
-    size: 20px;
-}

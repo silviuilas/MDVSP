@@ -1,30 +1,17 @@
 package ro.uaic.info;
 
-import org.graphstream.algorithm.Algorithm;
-import ro.uaic.info.graph.AcoAlgorithm;
-import ro.uaic.info.graph.AcoGraphGen;
-import ro.uaic.info.graph.RenderGraph;
-import ro.uaic.info.prb.ProblemIO;
-import ro.uaic.info.solver.AcoSolver;
-import ro.uaic.info.solver.Solver;
-
+import ro.uaic.info.gui.MenuGui;
 import java.io.IOException;
 
 public class App {
-    public static void main(String[] args) throws IOException {
-        int numberOfDepots = 5;
-        int numberOfCustomers = 25;
-        AcoGraphGen randomGraphGen = new AcoGraphGen(numberOfDepots, numberOfCustomers, new int[]{15, 15, 15, 15, 15}, 1000, 1000);
-        RenderGraph renderGraph = new RenderGraph(randomGraphGen.getGraph());
 
-        ProblemIO problemIO = new ProblemIO();
-        problemIO.populate(randomGraphGen.getFile());
-        AcoSolver solver = new AcoSolver();
-        solver.init(problemIO);
-        Problem problem = new Problem(problemIO, solver);
-        Algorithm algorithm = new AcoAlgorithm(problem);
-        algorithm.init(renderGraph.getGraph());
-        algorithm.compute();
+    public static void main(String[] args) throws IOException {
+
+        MenuGui menuGui = new MenuGui();
+        menuGui.run();
+
+
+
 
 
 //        ProblemIO problemIO = new ProblemIO();

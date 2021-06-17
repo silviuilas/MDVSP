@@ -1,0 +1,19 @@
+node {
+    fill-mode: dyn-plain;
+}
+
+node.depot {
+    fill-color: green;
+    size: 20px;
+}
+
+node .inside{
+    size: 3px;
+    fill-color: red;
+    stroke-mode: plain; /* Default is none.  */
+    stroke-width: 0.5px;
+    stroke-color: black; /* Default is black. */
+}
+node .outside{
+    size: 3px;
+}

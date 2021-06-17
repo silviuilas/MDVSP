@@ -1,4 +1,4 @@
-package ro.uaic.info.graph;
+package ro.uaic.info.gui.graph;
 
 import java.util.Arrays;
 import java.util.List;

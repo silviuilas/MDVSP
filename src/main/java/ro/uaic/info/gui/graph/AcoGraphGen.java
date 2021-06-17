@@ -1,7 +1,9 @@
-package ro.uaic.info.graph;
+package ro.uaic.info.gui.graph;
 
 import org.graphstream.graph.Node;
+import ro.uaic.info.helpers.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -10,10 +12,39 @@ public class AcoGraphGen extends RandomGraphGen {
     int number_of_customers;
     int total;
     int[] availableVehicles;
+    final int stdOutside;
+    final int stdInside;
     List<String> file;
 
-    public AcoGraphGen(int number_of_depots, int number_of_customers, int[] availableVehicles, int maxX, int maxY) {
+    public AcoGraphGen(int number_of_depots, int number_of_customers, int[] availableVehicles, int stdOutside1, int stdInside1, int maxX, int maxY) {
         super(number_of_depots + number_of_customers, maxX, maxY);
+        this.stdOutside = stdOutside1;
+        this.stdInside = stdInside1;
+        if (number_of_depots <= 4) {
+            List<Pair<Integer, Integer>> coords = new ArrayList<>();
+            if (number_of_depots >= 1) {
+                Pair<Integer, Integer> pair = new Pair<>(0, 0);
+                coords.add(pair);
+            }
+            if (number_of_depots >= 2) {
+                Pair<Integer, Integer> pair = new Pair<>(0, maxY);
+                coords.add(pair);
+            }
+            if (number_of_depots >= 3) {
+                Pair<Integer, Integer> pair = new Pair<>(maxX, 0);
+                coords.add(pair);
+            }
+            if (number_of_depots >= 4) {
+                Pair<Integer, Integer> pair = new Pair<>(maxX, maxY);
+                coords.add(pair);
+            }
+            addVertexes(graph, coords, 0);
+        } else {
+            List<Pair<Integer, Integer>> coords = getPointsNearCircleSmart(number_of_depots, maxX, maxY, stdOutside);
+            addVertexes(graph, coords, 0);
+        }
+        List<Pair<Integer, Integer>> coords = getInsidePoints(number_of_customers, maxX, maxY, stdInside);
+        addVertexes(graph, coords, number_of_depots);
         this.number_of_depots = number_of_depots;
         this.number_of_customers = number_of_customers;
         if (availableVehicles == null) {
@@ -28,7 +59,7 @@ public class AcoGraphGen extends RandomGraphGen {
         file = output.toList();
     }
 
-    public void setInterface(){
+    public void setInterface() {
         graph.nodes().forEach(a -> {
             if (Integer.parseInt(a.getId()) >= number_of_depots) {
                 a.setAttribute("ui.class", "client");
@@ -69,10 +100,10 @@ public class AcoGraphGen extends RandomGraphGen {
         double[] startTime = new double[n];
         double[] endTime = new double[n];
         double[][] travelTime = new double[total][total];
-        for(int i=0;i<n;i++){
+        for (int i = 0; i < n; i++) {
             startTime[i] = ThreadLocalRandom.current().nextDouble(0, 1440);
         }
-        for(int i=0;i<n;i++){
+        for (int i = 0; i < n; i++) {
             endTime[i] = startTime[i] + 5;
         }
 
@@ -83,39 +114,33 @@ public class AcoGraphGen extends RandomGraphGen {
             int y1 = Integer.parseInt(String.valueOf(a.getAttribute("y")));
             int x2 = Integer.parseInt(String.valueOf(b.getAttribute("x")));
             int y2 = Integer.parseInt(String.valueOf(b.getAttribute("y")));
-            travelTime[i][j] = calculateDistanceBetweenPoints(x1, y1, x2, y2);
+            travelTime[i][j] = calculateDistanceBetweenPoints(x1, y1, x2, y2) / 100;
         }));
 
 
         graph.nodes().forEach(a -> graph.nodes().forEach(b -> {
-            int i = Integer.parseInt(a.getId());
-            int j = Integer.parseInt(b.getId());
-            if (a.getId().equals(b.getId())) {
-                weight[i][j] = -1;
-            } else if (i < m && j < m) {
-                weight[i][j] = -1;
-            } else if(i < m || j < m) {
-                weight[i][j] = (int) (travelTime[i][j] * 10);
-            }
-            else
-                if(endTime[i-m] + travelTime[i-m][j-m] <= startTime[j-m]) {
-                    int x1 = Integer.parseInt(String.valueOf(a.getAttribute("x")));
-                    int y1 = Integer.parseInt(String.valueOf(a.getAttribute("y")));
-                    int x2 = Integer.parseInt(String.valueOf(b.getAttribute("x")));
-                    int y2 = Integer.parseInt(String.valueOf(b.getAttribute("y")));
-                    weight[i][j] = (int) (travelTime[i][j]);
+                    int i = Integer.parseInt(a.getId());
+                    int j = Integer.parseInt(b.getId());
+                    if (a.getId().equals(b.getId())) {
+                        weight[i][j] = -1;
+                    } else if (i < m && j < m) {
+                        weight[i][j] = -1;
+                    } else if (i < m || j < m) {
+                        weight[i][j] = (int) (travelTime[i][j] * 100);
+                    } else if (endTime[i - m] + travelTime[i - m][j - m] <= startTime[j - m]) {
+                        weight[i][j] = (int) (travelTime[i][j] * 100);
+                    } else {
+                        weight[i][j] = -1;
+                    }
                 }
-                else{
-                    weight[i][j] = -1;
-                }
-            }
-            ));
+        ));
         return weight;
     }
-    double map(double x, double in_min, double in_max, double out_min, double out_max)
-    {
+
+    double map(double x, double in_min, double in_max, double out_min, double out_max) {
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
+
     private int[] generateAvailableVehicles() {
         int[] av = new int[number_of_depots];
         for (int i = 0; i < number_of_depots; i++) {
